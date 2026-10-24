@@ -193,6 +193,8 @@ function deckCards(){
   const ids = trackIds(); let upto = calWeek();
   ids.forEach((id, i) => { if(wp(id).d) upto = Math.max(upto, i + 1); });
   const cards = GLOSS.map(([t, d, a]) => ({id:"g:" + t, kind:"Термин", front:t, back:d, extra:a}));
+  const inGloss = new Set(GLOSS.map(([t]) => t));
+  TERMS.forEach(x => { if(!inGloss.has(x.t)) cards.push({id:"t:" + x.t, kind:"Термин", front:x.t, back:x.d, extra:x.e}); });
   ids.slice(0, upto).forEach(id => LES[id].quiz.forEach((q, i) => cards.push({id:`q:${id}_${i}`, kind:LES[id].t, front:q.q, back:q.o[q.a], extra:q.e})));
   return cards;
 }

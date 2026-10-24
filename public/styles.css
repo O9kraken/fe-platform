@@ -1085,3 +1085,42 @@ body{margin:0}
 .deep-ai{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .deep-ai summary{cursor:pointer;font:500 11.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .deep-ai[open] summary{margin-bottom:8px}
+
+/* словарь */
+.gl-tools{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.gl-search{flex:1 1 280px;display:flex;align-items:center;gap:8px;border:1px solid var(--line2);border-radius:99px;padding:0 14px;background:#0A0A0B}
+.gl-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(212,255,58,.14)}
+.gl-search input{border:0;background:none;box-shadow:none!important;padding:11px 0;flex:1;min-width:0;font:inherit;color:var(--fg)}
+.gl-search input:focus{outline:none}
+.gl-search .ni{color:var(--muted);width:18px;height:18px;flex-basis:18px}
+.gl-int{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);cursor:pointer}
+.gl-int input{accent-color:var(--accent);width:16px;height:16px}
+.gloss{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr));gap:12px;align-items:start}
+.term{gap:8px;padding:16px 18px;border-radius:14px}
+.term-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.term-top b{font:400 16px/1.25 var(--f-display);letter-spacing:.02em}
+.term-c{font:500 9.5px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:right}
+.term-a{font:500 11.5px var(--f-mono);color:var(--muted)}
+.term > span{font-size:15px;line-height:1.55}
+.term > em{font-size:14px;color:#B5B5AF;border-left:2px solid var(--line2);padding-left:10px}
+.term-q{border:1px solid rgba(212,255,58,.22);border-radius:10px;padding:8px 12px;background:rgba(212,255,58,.04)}
+.term-q summary{cursor:pointer;font:500 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.term-q p{margin:8px 0 2px;font-size:14.5px;line-height:1.55}
+
+/* шапка и панель недели: фон на всю ширину колонки, без обрезанных краёв */
+.main{overflow-x:clip}
+.topbar,.weekbar{background:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-bottom:0!important;isolation:isolate}
+.topbar::before,.weekbar::before{content:"";position:absolute;top:0;bottom:0;left:-100vmax;right:-100vmax;z-index:-1;
+  background:rgba(5,5,5,.84);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line)}
+.weekbar{margin-top:-20px;padding-top:12px}
+#main:has(#tab-route:not([hidden])) .topbar::before{border-bottom-color:transparent}
+
+/* загрузка */
+.boot{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:var(--bg);color:var(--muted);font:500 12px/1.5 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:24px}
+.boot-logo{width:30px;height:42px;fill:var(--accent);filter:drop-shadow(0 0 8px rgba(212,255,58,.6));animation:bootPulse 1.4s ease-in-out infinite}
+.boot p{margin:0;max-width:34ch}
+@keyframes bootPulse{50%{opacity:.35;transform:scale(.94)}}
+@media (prefers-reduced-motion:reduce){.boot-logo{animation:none}}
+/* словарь: категория под названием */
+.term-top{flex-direction:column;align-items:flex-start;gap:4px}
+.term-c{text-align:left}

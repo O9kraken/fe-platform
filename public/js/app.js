@@ -1223,9 +1223,35 @@ function renderPlay(){
     ${s.items.length ? `<ul class="snips">${s.items.map(it => `<li><span class="chipm">${esc(MODE_LABEL[it.mode])}</span><span class="nm">${esc(it.name)}</span><small>${new Date(it.updated).toLocaleString("ru-RU", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"})}</small><button class="btn ghost sm" data-snip="${it.id}">Открыть</button><button class="btn ghost sm danger" data-del="${it.id}">${delArm === it.id ? "Точно удалить?" : "Удалить"}</button></li>`).join("")}</ul>` : '<p class="empty">Пока ничего. Начни с шаблона выше или нажми «В песочницу» у любого примера кода.</p>'}</div>`;
 }
 function renderOther(){
-  $("#gloss").innerHTML = GLOSS.map(([t, d, a]) => `<div class="term"><b>${esc(t)}</b><span>${esc(d)}</span><em>${esc(a)}</em></div>`).join("");
+  renderGloss();
   renderReady();
 }
+/* ---------- словарь ---------- */
+const GL = {cat:"Все", q:"", int:false};
+const termId = t => "term-" + termKey(t).replace(/[^a-zа-я0-9]+/g, "-");
+function renderGloss(){
+  const nq = termKey(GL.q);
+  const list = ALL_TERMS.filter(x => (GL.cat === "Все" || x.c === GL.cat) && (!GL.int || x.q) &&
+    (!nq || termKey(x.t + " " + (x.a || "") + " " + x.d).includes(nq)));
+  $("#glCount").textContent = `${ALL_TERMS.length} терминов · ${ALL_TERMS.filter(x => x.q).length} с ответом для собеседования` +
+    (list.length !== ALL_TERMS.length ? ` · показано ${list.length}` : "");
+  $("#glCats").innerHTML = ["Все", ...TERM_CATS].map(c => `<button class="chip" data-glcat="${esc(c)}" aria-pressed="${GL.cat === c}">${esc(c)}</button>`).join("");
+  $("#gloss").innerHTML = list.length ? list.map(x => `<article class="term" id="${termId(x.t)}">
+      <div class="term-top"><b>${esc(x.t)}</b><span class="term-c">${esc(x.c)}</span></div>
+      ${x.a ? `<small class="term-a">Ещё говорят: ${esc(x.a)}</small>` : ""}
+      <span>${esc(x.d)}</span>
+      <em>${esc(x.e)}</em>
+      ${x.q ? `<details class="term-q"><summary>Как ответить на собеседовании</summary><p>${esc(x.q)}</p></details>` : ""}
+    </article>`).join("") : `<p class="empty">Ничего не нашлось. Попробуй другое слово или выбери «Все».</p>`;
+}
+document.addEventListener("input", e => {
+  if(e.target.id === "glQ"){ GL.q = e.target.value; renderGloss(); }
+  if(e.target.id === "glInt"){ GL.int = e.target.checked; renderGloss(); }
+});
+document.addEventListener("click", e => {
+  const c = e.target.closest("[data-glcat]"); if(!c) return;
+  GL.cat = c.dataset.glcat; renderGloss();
+});
 function renderReady(){
   const k = trackKey(), rt = READY_BY_TRACK[k];
   $("#readyTitle").textContent = `Готов откликаться на Junior ${TRACKS[k].name}?`;
@@ -1248,6 +1274,7 @@ function setView(v){
   view = v;
   $$("[data-tab]").forEach(x => { const on = x.dataset.tab === v; x.classList.toggle("on", on); if(on) x.setAttribute("aria-current", "page"); else x.removeAttribute("aria-current"); });
   $("#viewTitle").textContent = VIEW_TITLES[v] || "";
+  document.title = `${VIEW_TITLES[v] || "Платформа"} — ZERO/STACK`;
   closeSide(); closeMap();
   ["today","route","practice","cards","play","gloss","method","ready","account","admin"].forEach(id => $("#tab-" + id).hidden = id !== v);
   rerender();
@@ -1329,7 +1356,7 @@ document.addEventListener("keydown", e => {
 /* ================= boot ================= */
 async function startApp(me){
   ME = me.user; Store.uid = ME.id; Store.mem = {};
-  $("#auth").hidden = true; $("#app").hidden = false;
+  $("#auth").hidden = true; $("#app").hidden = false; $("#boot").hidden = true;
   $("#adminTab").hidden = ME.role !== "admin";
   $("#accountTab").textContent = ME.displayName || ME.username;
   $("#accAvatar").textContent = (ME.displayName || ME.username).trim().charAt(0).toUpperCase();

@@ -177,6 +177,10 @@ vendor("/vendor/sqljs", "sql.js/dist");
 app.use(express.static(path.join(ROOT, "public"), { extensions: ["html"], maxAge: "5m" }));
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Нет такого адреса" }));
+app.use((req, res) => {
+  if (req.method === "GET" && req.accepts("html")) return res.status(404).sendFile(path.join(ROOT, "public", "404.html"));
+  res.status(404).json({ error: "Нет такого адреса" });
+});
 app.use((err, req, res, next) => {
   console.error(err);
   if (err.type === "entity.too.large") return res.status(413).json({ error: "Слишком большой объём данных" });

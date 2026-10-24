@@ -43,8 +43,9 @@ function buildIndex(){
     (VIZ_FOR[id] || []).forEach(v => out.push({kind:"Схема", title:VIZ[v].title, sub:`Неделя ${n} · ${l.t}`, text:VIZ[v].lead, go:() => { setView("route"); go(n); setTimeout(() => { const t = $(`[data-viz="${v}"]`); if(t) t.scrollIntoView({behavior:"smooth", block:"start"}); }, 80); }}));
     [...exOf(id), ...genOf(id)].forEach(ex => out.push({kind:"Задача", title:ex.t, sub:`Неделя ${n} · ${MODE_LABEL[ex.mode]}${S.ex[ex.id] && S.ex[ex.id].passed ? " · решена" : ""}`, text:strip(ex.task), go:() => openExercise(ex.id)}));
   });
-  GLOSS.forEach(([t, d, a]) => out.push({kind:"Термин", title:t, sub:d, text:a, go:() => { setView("gloss"); setTimeout(() => {
-    const el = [...$$(".term")].find(x => x.querySelector("b").textContent === t); if(el){ el.scrollIntoView({behavior:"smooth", block:"center"}); el.classList.remove("hl"); void el.offsetWidth; el.classList.add("hl"); } }, 60); }}));
+  ALL_TERMS.forEach(x => out.push({kind:"Термин", title:x.t, sub:x.d, text:[x.a, x.e, x.q].filter(Boolean).join(" "), go:() => {
+    GL.cat = "Все"; GL.q = ""; GL.int = false; setView("gloss"); const qi = $("#glQ"); if(qi) qi.value = ""; const ci = $("#glInt"); if(ci) ci.checked = false; renderGloss();
+    setTimeout(() => { const el = document.getElementById(termId(x.t)); if(el){ el.scrollIntoView({behavior:"smooth", block:"center"}); el.classList.remove("hl"); void el.offsetWidth; el.classList.add("hl"); const d = el.querySelector("details"); if(d) d.open = true; } }, 60); }}));
   Object.entries(VIEW_TITLES).forEach(([v, t]) => { if(v !== "admin" || ME.role === "admin") out.push({kind:"Раздел", title:t, sub:"Перейти в раздел", text:"", go:() => setView(v)}); });
   return out;
 }

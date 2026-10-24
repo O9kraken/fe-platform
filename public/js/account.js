@@ -1,7 +1,7 @@
 /* ================= вход и регистрация ================= */
 let authMode = "login";
 async function showAuth(){
-  $("#app").hidden = true; $("#auth").hidden = false;
+  $("#app").hidden = true; $("#auth").hidden = false; $("#boot").hidden = true;
   let cfg = {registration:true};
   try{ cfg = await api("GET", "/api/config"); }catch(e){}
   $("#authSwitch").hidden = !cfg.registration;
