@@ -31,12 +31,19 @@ function md(src){
       const m = /^([\w+-]*)\n/.exec(b); const lang = m ? m[1].toLowerCase() : "";
       const code = (m ? b.slice(m[0].length) : b).replace(/\n$/, "");
       const idx = CODES.push({code, lang}) - 1;
-      return `<div class="codeblk"><pre><code>${esc(code)}</code></pre><button class="to-sb" data-ci="${idx}">В песочницу</button></div>`;
+      const runnable = /^(js|javascript|jsx|ts|tsx|typescript|html|css|sql|)$/.test(lang);
+      return `<div class="codeblk">${lang ? `<span class="lang">${esc(lang)}</span>` : ""}<pre><code>${esc(code)}</code></pre>${runnable ? `<button class="to-sb" data-ci="${idx}">В песочницу</button>` : ""}</div>`;
     }
     return b.trim().split(/\n{2,}/).filter(Boolean).map(par => {
       const lines = par.split("\n");
       const inl = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
       if(lines.length === 1 && /^#{1,4}\s/.test(lines[0])) return "<h4>" + inl(lines[0].replace(/^#+\s*/, "")) + "</h4>";
+      if(lines.length > 1 && /^#{1,4}\s/.test(lines[0])) return "<h4>" + inl(lines[0].replace(/^#+\s*/, "")) + "</h4>" + md(lines.slice(1).join("\n"));
+      if(lines.every(l => /^\s*\|.*\|\s*$/.test(l)) && lines.length > 1){
+        const cells = l => l.trim().replace(/^\||\|$/g, "").split("|").map(c => inl(c.trim()));
+        const body = lines.filter(l => !/^\s*\|[\s:|-]+\|\s*$/.test(l));
+        return `<div class="tbl"><table><thead><tr>${cells(body[0]).map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>${body.slice(1).map(r => `<tr>${cells(r).map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+      }
       if(lines.every(l => /^\s*[-*•]\s+/.test(l))) return "<ul>" + lines.map(l => "<li>" + inl(l.replace(/^\s*[-*•]\s+/, "")) + "</li>").join("") + "</ul>";
       if(lines.every(l => /^\s*\d+[.)]\s+/.test(l))) return "<ol>" + lines.map(l => "<li>" + inl(l.replace(/^\s*\d+[.)]\s+/, "")) + "</li>").join("") + "</ol>";
       return "<p>" + lines.map(l => /^#{1,4}\s/.test(l) ? "<strong>" + inl(l.replace(/^#+\s*/, "")) + "</strong>" : inl(l)).join("<br>") + "</p>";
@@ -701,6 +708,7 @@ function renderWeek(){
   <div class="sec">
     <div class="chicken">${CHICK}<div><span class="lbl">Объяснение для курицы</span><p>${esc(w.why)}</p></div></div>
   </div>
+  ${notesSec(id)}
   ${(VIZ_FOR[id] || []).length ? `<div class="sec" id="sec-viz"><h3><span class="n">00</span>Посмотри, как это работает</h3>${VIZ_FOR[id].map(v => `<div class="viz" data-viz="${v}"></div>`).join("")}</div>` : ""}
   <div class="sec" id="sec-learn"><h3><span class="n">01</span>Что изучить</h3>
     <p class="sec-sub">Отмечай то, что можешь объяснить своими словами. Непонятный пункт — жми «Разобрать»: наставник напишет подробный урок с примером и мини-заданием.</p>
@@ -761,6 +769,7 @@ function updateWeekProgress(){
 function secDone(id){
   const w = LES[id], ex = exOf(id);
   return {
+    "sec-notes": !!(S.read && S.read[id]),
     "sec-learn": w.learn.every((_, i) => S.c[`${id}_l${i}`]),
     "sec-practice": ex.length ? ex.every(e => S.ex[e.id] && S.ex[e.id].passed) : false,
     "sec-project": !!(S.c[`${id}_do`] && S.c[`${id}_ck`]),
@@ -770,7 +779,7 @@ function secDone(id){
 }
 function renderWeekbar(){
   const n = sel, w = lessonAt(n), id = w.id, total = trackLen(), done = secDone(id);
-  const secs = [...((VIZ_FOR[id] || []).length ? [["sec-viz","Схема"]] : []), ["sec-learn","Темы"], ["sec-practice","Практика"], ["sec-project","Проект"], ["sec-quiz","Тест"], ["sec-ask","Наставник"], ["sec-journal","Дневник"]];
+  const secs = [...(NOTES[id] ? [["sec-notes","Конспект"]] : []), ...((VIZ_FOR[id] || []).length ? [["sec-viz","Схема"]] : []), ["sec-learn","Темы"], ["sec-practice","Практика"], ["sec-project","Проект"], ["sec-quiz","Тест"], ["sec-ask","Наставник"], ["sec-journal","Дневник"]];
   const bar = $("#weekbar"); if(!bar) return;
   bar.style.setProperty("--c", `var(${MODULES[w.mod].c})`);
   bar.innerHTML = `<div class="wb-row">
@@ -1290,6 +1299,7 @@ async function startApp(me){
   aiChecked = true;
   sel = calWeek();
   const hm = /^#w(\d{1,2})$/.exec(location.hash || ""); if(hm){ const v = +hm[1]; if(v >= 1 && v <= trackLen()) sel = v; }
+  loadNotes();
   renderOther(); setView(view);
   maybeOnboard();
   setTimeout(() => ensureCM(), 1500);

@@ -810,3 +810,44 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .side-stats .goalring b,.side-stats .streakbox b{font-size:15px}
 #adminTab .nav-h{margin-top:12px}
 @media (max-width:620px){.wh-ring{display:none}}
+
+/* ---------- конспект ---------- */
+.notes{font-size:16px;line-height:1.65;max-width:76ch}
+.notes h4{font:700 17px/1.3 var(--f-display);margin:22px 0 8px;padding-top:4px}
+.notes h4:first-child{margin-top:0}
+.notes p,.notes ul,.notes ol{margin:0 0 10px}
+.notes li{margin-bottom:4px}
+.notes li::marker{color:var(--muted)}
+.notes .tbl{margin:4px 0 12px}
+.notes table{font-size:14px;background:var(--bg);border-radius:10px;overflow:hidden}
+.notes code{font-size:.86em}
+.codeblk .lang{position:absolute;top:7px;left:12px;font:600 10px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);pointer-events:none}
+.codeblk:has(.lang) pre{padding-top:26px}
+.notes-foot{padding-top:6px;border-top:1px dashed var(--line);margin-top:6px}
+.notes h4 + p strong:first-child{color:var(--fg)}
+
+/* ---------- поиск ---------- */
+.searchbtn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 10px 8px 12px;color:var(--muted);cursor:pointer;font-size:14px;min-width:200px;box-shadow:var(--shadow)}
+.searchbtn:hover{border-color:var(--fg);color:var(--fg)}
+.searchbtn .ni{width:18px;height:18px;flex-basis:18px}
+.searchbtn kbd{margin-left:auto}
+@media (max-width:900px){.searchbtn{min-width:0;padding:0;width:40px;height:40px;justify-content:center}.searchbtn span,.searchbtn kbd{display:none}.top-mini{display:none}}
+.search{position:fixed;inset:0;z-index:95;background:rgba(10,15,25,.5);display:flex;justify-content:center;align-items:flex-start;
+  padding:max(8vh,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px));animation:fadeIn .15s ease}
+.search-card{width:100%;max-width:640px;background:var(--surface);border-radius:18px;box-shadow:var(--shadow-lg);overflow:hidden;display:flex;flex-direction:column;max-height:76vh;animation:popIn .18s ease}
+.search-in{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.search-in .ni{color:var(--muted)}
+.search-in input{border:0;background:none;box-shadow:none!important;font-size:17px;padding:4px 0;flex:1;min-width:0}
+.search-list{list-style:none;margin:0;padding:8px;overflow-y:auto;flex:1}
+.search-list li[data-sr]{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer}
+.search-list li[aria-selected="true"]{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.sr-k{flex:0 0 80px;font:600 11px/1 var(--f-body);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.sr-k.k-Урок{color:var(--accent)}.sr-k.k-Задача{color:var(--ok)}.sr-k.k-Схема{color:var(--m6)}.sr-k.k-Конспект{color:var(--m1)}
+.sr-t{display:flex;flex-direction:column;min-width:0}
+.sr-t b{font-weight:600;font-size:15px}
+.sr-t small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr-t mark{background:color-mix(in srgb,var(--m4) 45%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+.sr-empty{padding:18px;color:var(--muted);font-size:14px}
+.search-foot{margin:0;padding:10px 16px;border-top:1px solid var(--line);font-size:12px}
+.term.hl{animation:termHl 1.6s ease}
+@keyframes termHl{0%,40%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 0 transparent}}
