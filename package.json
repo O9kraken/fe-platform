@@ -1,0 +1,28 @@
+{
+  "name": "frontend-course-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Учебная платформа «Веб-разработка с нуля»: Frontend, Backend и Fullstack, редактор кода с автотестами, аккаунты и прогресс в Postgres (Neon).",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch --env-file=.env server/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
+    "@babel/standalone": "^7.24.7",
+    "bcryptjs": "^3.0.3",
+    "codemirror": "^5.65.16",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.22.3",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sql.js": "^1.12.0"
+  }
+}
