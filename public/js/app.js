@@ -44,6 +44,17 @@ function md(src){
         const body = lines.filter(l => !/^\s*\|[\s:|-]+\|\s*$/.test(l));
         return `<div class="tbl"><table><thead><tr>${cells(body[0]).map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>${body.slice(1).map(r => `<tr>${cells(r).map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
       }
+      const top = /^([-*•]|\d+[.)])\s+/;
+      if(top.test(lines[0]) && lines.some(l => /^\s{2,}\S/.test(l)) && lines.every(l => top.test(l) || /^\s{2,}\S/.test(l))){
+        const items = [];
+        for(const l of lines){
+          if(top.test(l)) items.push({t:l.replace(top, ""), sub:[]});
+          else if(/^\s+[-*•]\s+/.test(l)) items[items.length - 1].sub.push(l.replace(/^\s+[-*•]\s+/, ""));
+          else items[items.length - 1].t += "\n" + l.trim();
+        }
+        const tag = /^\d/.test(lines[0]) ? "ol" : "ul";
+        return `<${tag}>` + items.map(it => "<li>" + it.t.split("\n").map(inl).join("<br>") + (it.sub.length ? "<ul>" + it.sub.map(x => "<li>" + inl(x) + "</li>").join("") + "</ul>" : "") + "</li>").join("") + `</${tag}>`;
+      }
       if(lines.every(l => /^\s*[-*•]\s+/.test(l))) return "<ul>" + lines.map(l => "<li>" + inl(l.replace(/^\s*[-*•]\s+/, "")) + "</li>").join("") + "</ul>";
       if(lines.every(l => /^\s*\d+[.)]\s+/.test(l))) return "<ol>" + lines.map(l => "<li>" + inl(l.replace(/^\s*\d+[.)]\s+/, "")) + "</li>").join("") + "</ol>";
       return "<p>" + lines.map(l => /^#{1,4}\s/.test(l) ? "<strong>" + inl(l.replace(/^#+\s*/, "")) + "</strong>" : inl(l)).join("<br>") + "</p>";
@@ -173,9 +184,15 @@ function coursePct(s = S){ let d = 0, t = 0; for(const id of trackIds(s)){ const
 function streak(s = S){
   const d = new Date();
   const key = x => x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0");
+  /* дни отдыха из плана занятий серию не рвут; занятие в выходной засчитывается как бонус */
+  const plan = Array.isArray(s.plan) && s.plan.length ? s.plan : [0, 1, 2, 3, 4, 5, 6];
   let k = 0;
   if(!s.days[key(d)]) d.setDate(d.getDate() - 1);
-  while(s.days[key(d)]){ k++; d.setDate(d.getDate() - 1); }
+  for(let guard = 0; guard < 1000; guard++){
+    if(s.days[key(d)]) k++;
+    else if(plan.includes(d.getDay())) break;
+    d.setDate(d.getDate() - 1);
+  }
   return k;
 }
 /* модули текущего направления: подряд идущие уроки одного модуля — одна линия */
@@ -403,7 +420,7 @@ const res = [];
 for (const [n, f] of T) {
   try {
     const r = await Promise.race([f(), sleep(3000).then(() => { throw new Error("Тест не дождался ответа за 3 секунды"); })]);
-    res.push({n, ok: r !== false});
+    res.push({n, ok: r === undefined ? true : !!r});
   } catch (e) { res.push({n, ok:false, m: __ru(e && e.message || e)}); }
 }
 __send("tests", res);
@@ -711,7 +728,7 @@ function renderWeek(){
   ${notesSec(id)}
   ${(VIZ_FOR[id] || []).length ? `<div class="sec" id="sec-viz"><h3><span class="n">00</span>Посмотри, как это работает</h3>${VIZ_FOR[id].map(v => `<div class="viz" data-viz="${v}"></div>`).join("")}</div>` : ""}
   <div class="sec" id="sec-learn"><h3><span class="n">01</span>Что изучить</h3>
-    <p class="sec-sub">Отмечай то, что можешь объяснить своими словами. Непонятный пункт — жми «Разобрать»: наставник напишет подробный урок с примером и мини-заданием.</p>
+    <p class="sec-sub">Отмечай то, что можешь объяснить своими словами. Непонятный пункт — жми «Разобрать»: откроется подробный урок с аналогией, примером, частыми ошибками и мини-заданием.</p>
     <ul class="checks">${w.learn.map((l, i) => { const key = `l${i}`; return `<li class="topic" id="topic-${i}">
       <div class="topic-row">${ckItem(`${id}_l${i}`, esc(l))}<button class="deep-btn ${deep[key] ? "has" : ""}" data-deep="${i}" aria-expanded="false">Разобрать</button></div>
       <div class="deep" id="deep-${i}" hidden></div></li>`; }).join("")}</ul>
@@ -799,14 +816,37 @@ function markActiveSec(){
 addEventListener("scroll", () => { if(view === "route") markActiveSec(); }, {passive:true});
 
 /* ================= deep dive ================= */
+/* подробные уроки по каждому пункту лежат в /lessons/<id>.md: блоки «@@ номер пункта» */
+const DEEP = {};
+async function loadDeep(id){
+  if(DEEP[id]) return DEEP[id];
+  const out = {};
+  try{
+    const r = await fetch(`/lessons/${id}.md`);
+    if(r.ok) (await r.text()).split(/^@@ (\d+)\s*$/m).forEach((chunk, i, arr) => { if(i % 2) out[+chunk] = (arr[i + 1] || "").trim(); });
+  }catch(e){ console.warn("deep", e); }
+  return DEEP[id] = out;
+}
 async function toggleDeep(i, regen){
   const n = sel, w = lessonAt(n), box = $("#deep-" + i), btn = $(`[data-deep="${i}"]`);
   if(!box) return;
   if(!regen && !box.hidden){ box.hidden = true; btn.setAttribute("aria-expanded", "false"); return; }
   box.hidden = false; btn.setAttribute("aria-expanded", "true");
   const store = Store.get("deep-" + w.id), key = "l" + i;
-  const tools = '<div class="row"><button class="btn ghost sm" data-deepregen="' + i + '">Объяснить по-другому</button><button class="btn ghost sm" data-deepclose="' + i + '">Свернуть</button></div>';
-  if(store[key] && !regen){ box.innerHTML = `<div class="ai-text">${md(store[key])}</div>${tools}`; return; }
+  const regenBtn = sampleFn ? '<button class="btn ghost sm" data-deepregen="' + i + '">Объяснить по-другому</button>' : "";
+  const tools = '<div class="row deep-tools">' + regenBtn + '<button class="btn ghost sm" data-deepclose="' + i + '">Свернуть</button></div>';
+  if(!regen){
+    if(!DEEP[w.id]) box.innerHTML = '<p class="hint">Открываю урок…</p>';
+    const lessons = await loadDeep(w.id);
+    if(sel !== n) return;
+    const own = lessons[i];
+    if(own){
+      const extra = store[key] ? `<details class="deep-ai"><summary>Объяснение наставника</summary><div class="ai-text">${md(store[key])}</div></details>` : "";
+      box.innerHTML = `<div class="ai-text deep-lesson">${md(own)}</div>${extra}${tools}`;
+      return;
+    }
+    if(store[key]){ box.innerHTML = `<div class="ai-text">${md(store[key])}</div>${tools}`; return; }
+  }
   box.innerHTML = '<div class="ai-text"></div>';
   const topic = w.learn[i];
   const prompt = `${mentorRules()}
@@ -818,7 +858,7 @@ async function toggleDeep(i, regen){
 ### Пример — короткий рабочий код с комментариями на языке темы (HTML/CSS, JavaScript/TypeScript, SQL или Node.js)
 ### Частые ошибки — 2–3 пункта
 ### Мини-задание — одно небольшое упражнение на 5–10 минут, без решения
-Объём — как одна страница учебника.${regen ? " Объясни иначе, чем обычно: другая аналогия и другой пример." : ""}`;
+Объём — как одна страница учебника.${regen ? " Объясни иначе, чем в учебнике: другая аналогия и другой пример." : ""}`;
   const text = await aiStream(prompt, box.firstChild);
   if(text){ store[key] = text; Store.save("deep-" + w.id); btn.classList.add("has"); }
   box.insertAdjacentHTML("beforeend", tools);

@@ -423,3 +423,4 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line2);border-radius:4px;
   .zero-art > svg circle,.typing i,.live::before{animation:none}
   .lt-bars i{transform:none;transition:none}
 }
+.goal-plan{margin:0;text-align:center;font-size:13px;color:var(--muted)}

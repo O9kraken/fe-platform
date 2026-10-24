@@ -131,8 +131,13 @@ function freshen(s){
   const diff = s.day ? Math.round((new Date(today) - new Date(s.day)) / 864e5) : 0;
   const vals = (s.days7 || []).slice(Math.max(0, diff)).concat(Array(Math.min(7, Math.max(0, diff))).fill(0)).slice(-7);
   while(vals.length < 7) vals.unshift(0);
+  /* после сохранения сводки занятий не было: серия сгорает, если с тех пор прошёл учебный день */
   let streak = s.streak || 0;
-  if(diff >= 2 || (diff === 1 && !s.today)) streak = 0;
+  const plan = Array.isArray(s.plan) && s.plan.length ? s.plan : [0, 1, 2, 3, 4, 5, 6];
+  if(diff > 0 && s.day){
+    const d0 = new Date(s.day + "T12:00:00");
+    for(let i = s.today ? 1 : 0; i < diff; i++){ const d = new Date(d0); d.setDate(d0.getDate() + i); if(plan.includes(d.getDay())){ streak = 0; break; } }
+  }
   return {...s, today:diff > 0 ? 0 : s.today, streak, days:days.map((d, i) => ({...d, v:vals[i] || 0}))};
 }
 function continueHref(s){ return s && !s.done && s.week ? "/app#w" + s.week : "/app#today"; }

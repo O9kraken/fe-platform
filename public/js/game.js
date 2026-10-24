@@ -29,7 +29,7 @@ function levelOf(x){ let L = 1; while(lvlStart(L + 1) <= x) L++; return L; }
 const levelTitle = L => LEVEL_TITLES[L - 1] || "Легенда";
 function gameInit(s){
   s.aw = s.aw || {}; s.xpDay = s.xpDay || {}; s.ach = s.ach || {}; s.cards = s.cards || {}; s.cardsNew = s.cardsNew || {};
-  s.goal = s.goal || 50; s.cardXp = s.cardXp || 0; s.reviewed = s.reviewed || 0; s.doneL = s.doneL || {};
+  s.goal = s.goal || 50; s.plan = Array.isArray(s.plan) && s.plan.length ? s.plan : [0, 1, 2, 3, 4, 5, 6]; s.cardXp = s.cardXp || 0; s.reviewed = s.reviewed || 0; s.doneL = s.doneL || {};
   return s;
 }
 function award(key, pts){
@@ -39,6 +39,15 @@ function award(key, pts){
   return pts;
 }
 const xpToday = () => S.xpDay[today()] || 0;
+const WD = ["вс","пн","вт","ср","чт","пт","сб"], WD_ORDER = [1, 2, 3, 4, 5, 6, 0];
+const planned = d => S.plan.includes(d.getDay());
+function planWeek(){
+  const now = new Date(), mon = new Date(now); mon.setDate(now.getDate() - (now.getDay() + 6) % 7);
+  let need = 0, done = 0;
+  for(let i = 0; i < 7; i++){ const d = new Date(mon); d.setDate(mon.getDate() + i); if(planned(d)){ need++; if(S.days[dayKey(d)]) done++; } }
+  return {need, done};
+}
+const planChips = () => `<div class="chips daychips" role="group" aria-label="Учебные дни">${WD_ORDER.map(w => `<button class="chip" data-plan="${w}" aria-pressed="${S.plan.includes(w)}">${WD[w]}</button>`).join("")}</div>`;
 
 /* ---------- достижения ---------- */
 const passedEx = (s, f = () => true) => Object.entries(s.ex).filter(([id, e]) => e && e.passed && f(findEx(id) || {})).length;
@@ -130,7 +139,7 @@ function syncSummary(x, L, t, due){
     const days7 = Array.from({length:7}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - 6 + i); return S.xpDay[dayKey(d)] || 0; });
     const sum = {v:1, xp:x, level:L, title:levelTitle(L), lvlFrom:lvlStart(L), lvlTo:lvlStart(L + 1), today:t, goal:S.goal, streak:streak(),
       pct:coursePct(), track:trackKey(), trackName:TRACKS[trackKey()].name, week:n, weeks:trackLen(), lesson:les ? les.t : "", mod:les ? MODULES[les.mod].name : "",
-      done:!step, solved, exTotal:EX.length, cards:due, ach:Object.keys(S.ach).length, achTotal:ACH.length, days7, day:today()};
+      done:!step, solved, exTotal:EX.length, cards:due, ach:Object.keys(S.ach).length, achTotal:ACH.length, days7, day:today(), plan:S.plan};
     const j = JSON.stringify(sum);
     if(j === lastSummary) return;
     const first = !lastSummary; lastSummary = j;
@@ -149,7 +158,8 @@ function renderOnb(){
     {t:`Привет, ${esc(ME.displayName)}!`, body:`<p class="onb-lead">Это курс веб-разработки с нуля: каждая неделя — тема с объяснением на пальцах, живой схемой, задачами с автопроверкой и тестом. Для начала выбери направление.</p>${trackPickerHtml()}`},
     {t:"Сколько заниматься в день?", body:`<p class="onb-lead">Цель считается в XP — очках за действия. Начни с малого: регулярность важнее длинных марафонов.</p>
       <div class="goals">${[[30,"≈ 25 минут","Лёгкий старт"],[50,"≈ 40 минут","Рекомендую"],[100,"≈ 1,5 часа","Интенсив"],[150,"≈ 2 часа","Максимум"]].map(([g, m, l]) => `<button class="goalcard" data-goal="${g}" aria-pressed="${S.goal === g}"><b>${g} XP</b><span>${m}</span><em>${l}</em></button>`).join("")}</div>
-      <p class="hint">Цель можно поменять в любой момент на экране «Сегодня».</p>`},
+      <p class="onb-sub"><b>В какие дни учишься?</b> В остальные дни серия не сгорит, даже если не заниматься.</p>${planChips()}
+      <p class="hint">Цель и дни можно поменять в любой момент на экране «Сегодня».</p>`},
     {t:"Как здесь всё устроено", body:`<div class="howto">
       <div><span class="ht-i">${glyph("base")}</span><b>Сегодня</b><p>Твой план на день: следующий шаг, цель и серия дней.</p></div>
       <div><span class="ht-i">${glyph("proj")}</span><b>Маршрут</b><p>Недели курса: объяснение, схема, темы, задачи, тест и дневник.</p></div>
@@ -196,7 +206,8 @@ function cardQueue(){
 function renderToday(){
   const t = TRACKS[trackKey()], n = calWeek(), step = nextStep(), x = xp(), L = levelOf(x);
   const q = cardQueue();
-  const days = Array.from({length:7}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - 6 + i); return {k:dayKey(d), w:["вс","пн","вт","ср","чт","пт","сб"][d.getDay()], v:S.xpDay[dayKey(d)] || 0, on:!!S.days[dayKey(d)]}; });
+  const days = Array.from({length:7}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - 6 + i); return {k:dayKey(d), w:["вс","пн","вт","ср","чт","пт","сб"][d.getDay()], v:S.xpDay[dayKey(d)] || 0, on:!!S.days[dayKey(d)], rest:!planned(d)}; });
+  const pw = planWeek(), restToday = !planned(new Date());
   const maxV = Math.max(S.goal, ...days.map(d => d.v));
   const cur = step ? LES[step.id] : null;
   const vizId = cur && (VIZ_FOR[cur.id] || [])[0];
@@ -214,8 +225,9 @@ function renderToday(){
     </div>
     <div class="th-goal">
       <div class="th-ring">${ring(xpToday() / S.goal, 132, 12)}<div><b>${xpToday()}</b><span>из ${S.goal} XP</span></div></div>
-      <div class="th-week" aria-label="Активность за 7 дней">${days.map(d => `<div class="${d.k === today() ? "td" : ""}"><i style="height:${Math.max(d.on ? 8 : 3, d.v / maxV * 56)}px" class="${d.v >= S.goal ? "full" : d.on ? "some" : ""}"></i><span>${d.w}</span></div>`).join("")}</div>
+      <div class="th-week" aria-label="Активность за 7 дней">${days.map(d => `<div class="${d.k === today() ? "td" : ""} ${d.rest ? "rest" : ""}" title="${d.rest ? "День отдыха" : "Учебный день"}"><i style="height:${Math.max(d.on ? 8 : 3, d.v / maxV * 56)}px" class="${d.v >= S.goal ? "full" : d.on ? "some" : ""}"></i><span>${d.w}</span></div>`).join("")}</div>
       <div class="th-streak">${FLAME}<b>${streak()}</b> ${streak() === 1 ? "день" : streak() < 5 && streak() > 1 ? "дня" : "дней"} подряд</div>
+      <p class="th-plan ${restToday ? "rest" : ""}">${restToday ? "Сегодня выходной — серия не сгорит" : `Учебных дней на этой неделе: ${pw.done} из ${pw.need}`}</p>
     </div>
   </section>
   <div class="today-cards">
@@ -227,6 +239,8 @@ function renderToday(){
   <section class="panel"><div class="panel-head"><h2>Твой путь</h2><span class="hint">Нажми на неделю, чтобы открыть её</span></div><div class="pathmap" id="pathmap"></div><div class="pm-legend">${trackRuns().map(r => `<span style="--c:var(${MODULES[r.mod].c})">${glyph(r.mod)}${esc(MODULES[r.mod].name)}</span>`).join("")}</div></section>
   <section class="panel"><div class="panel-head"><h2>Достижения</h2><span class="hint">${unlocked} из ${ACH.length}</span></div>
     <div class="achs">${ACH.map(a => `<div class="ach ${S.ach[a.id] ? "on" : ""}" title="${esc(a.d)}"><span class="medal">${S.ach[a.id] ? "★" : "☆"}</span><b>${esc(a.t)}</b><small>${esc(a.d)}</small></div>`).join("")}</div></section>
+  <section class="panel slim"><div class="panel-head"><h2>Учебные дни</h2>${planChips()}</div>
+    <p class="hint">Отметь дни, когда планируешь заниматься. Пропуск дня отдыха не обнуляет серию, а занятие в выходной всё равно засчитается.</p></section>
   <section class="panel slim"><div class="panel-head"><h2>Цель на день</h2><div class="chips" role="group" aria-label="Цель на день">${[30, 50, 100, 150].map(g => `<button class="chip" data-goal="${g}" aria-pressed="${S.goal === g}">${g} XP</button>`).join("")}</div></div>
     <p class="hint">XP дают: тема +5, верный ответ в тесте +10, решённая задача +40, запись в дневнике +10, карточка +2. 50 XP — около 40 минут занятий.</p></section>`;
   drawPath();
@@ -310,6 +324,9 @@ function gradeCard(g){
 document.addEventListener("click", e => {
   const t = e.target;
   const gw = t.closest("[data-goweek]"); if(gw){ const n = +gw.dataset.goweek; setView("route"); go(n); setTimeout(() => { const v = gw.dataset.scroll === "viz" ? $(".viz") : null; (v || $("#week")).scrollIntoView({behavior:"smooth", block:"start"}); }, 60); return; }
+  const pl = t.closest("[data-plan]"); if(pl){ const w = +pl.dataset.plan, has = S.plan.includes(w);
+    if(has && S.plan.length === 1){ toast("Оставь хотя бы один учебный день"); return; }
+    S.plan = has ? S.plan.filter(x => x !== w) : [...S.plan, w].sort(); saveCourse(); if(view === "today") renderToday(); renderOnb(); return; }
   const gl = t.closest("[data-goal]"); if(gl){ S.goal = +gl.dataset.goal; saveCourse(); if(view === "today") renderToday(); renderOnb(); return; }
   if(t.closest("[data-track]") && !$("#onb").hidden){ setTimeout(renderOnb, 0); return; }
   const ob = t.closest("[data-onb]"); if(ob){ const a = ob.dataset.onb;

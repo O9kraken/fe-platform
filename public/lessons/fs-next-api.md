@@ -1,0 +1,355 @@
+@@ 0
+
+### На пальцах
+Next.js умеет быть не только витриной магазина, но и подсобкой. Route Handlers — окошки выдачи в той же подсобке: адрес `/api/projects` отвечает на запросы JSON-ом, как маршрут в Express, только живёт прямо в проекте Next.js, в папке `app/api`.
+
+### Как это работает
+- Файл `app/api/<путь>/route.ts` — обработчик для адреса `/api/<путь>`.
+- Из файла экспортируются функции с именами методов: `GET`, `POST`, `PATCH`, `DELETE`.
+- Функция получает стандартный `Request` и возвращает `Response` (удобно — `Response.json(data, { status })`).
+- Динамические сегменты: `app/api/projects/[id]/route.ts` → второй аргумент `{ params }`.
+- Тело: `await request.json()`, query: `new URL(request.url).searchParams`, cookie и заголовки — `cookies()` и `headers()` из `next/headers`.
+- Код выполняется на сервере: можно обращаться к базе и использовать секретные переменные.
+
+Когда нужны Route Handlers: API для внешних клиентов (мобильное приложение, другой сервис), вебхуки (платёжки, Telegram-бот), загрузка файлов, обработка форм с клиентских компонентов. Для данных серверных компонентов Route Handler не нужен — они сами могут сходить в базу.
+
+### Пример
+```ts
+// app/api/projects/route.ts
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { getUser } from "@/lib/auth";
+
+const createSchema = z.object({ title: z.string().trim().min(2).max(120) });
+
+export async function GET(request: Request) {
+  const user = await getUser();
+  if (!user) return Response.json({ error: "Войдите в аккаунт" }, { status: 401 });
+  const status = new URL(request.url).searchParams.get("status");
+  const projects = await db.project.findMany({ where: { ownerId: user.id, ...(status ? { status } : {}) } });
+  return Response.json(projects);
+}
+
+export async function POST(request: Request) {
+  const user = await getUser();
+  if (!user) return Response.json({ error: "Войдите в аккаунт" }, { status: 401 });
+  const parsed = createSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return Response.json({ error: "Проверьте данные", fields: parsed.error.flatten().fieldErrors }, { status: 400 });
+  const project = await db.project.create({ data: { ...parsed.data, ownerId: user.id } });
+  return Response.json(project, { status: 201 });
+}
+```
+
+```ts
+// app/api/projects/[id]/route.ts
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const user = await getUser();
+  const { count } = await db.project.deleteMany({ where: { id: Number(id), ownerId: user?.id } });
+  if (!count) return Response.json({ error: "Проект не найден" }, { status: 404 });
+  return new Response(null, { status: 204 });
+}
+```
+
+### Частые ошибки
+- Вызывать свой же Route Handler через `fetch` из серверного компонента — лишний сетевой круг, проще вызвать функцию напрямую.
+- Не проверять сессию в каждом обработчике.
+- Файл назван `page.ts` вместо `route.ts` или оба файла в одной папке — конфликт.
+
+### Мини-задание
+Сделай в Next.js-проекте Route Handlers для CRUD заметок с проверкой сессии и валидацией zod. Проверь их через Bruno так же, как Express-API.
+
+@@ 1
+
+### На пальцах
+Обычно форма отправляется так: собрать данные → сделать `fetch` на API → API обработает. Server Action убирает посредника: форма напрямую вызывает серверную функцию, как будто это обычная функция в коде. Next.js сам превращает это в запрос, а ты пишешь меньше кода.
+
+### Как это работает
+- Server Action — async-функция с директивой `"use server"` (в начале функции или файла).
+- Её можно передать в `<form action={createProject}>` — форма отправит `FormData` прямо в эту функцию на сервере.
+- Работает даже без JavaScript в браузере — обычная отправка формы.
+- После изменения данных — `revalidatePath("/projects")`, чтобы страница показала новые данные, или `redirect("/projects/42")`.
+- Для состояния формы (ошибки, «отправляется») — хуки `useActionState` и `useFormStatus` в клиентских компонентах.
+
+Server Action — это публичная точка входа, такая же, как маршрут API. Любой может вызвать её напрямую. Поэтому внутри **обязательно**: проверка сессии, проверка прав, валидация данных.
+
+### Пример
+```ts
+// app/projects/actions.ts
+"use server";
+import { z } from "zod";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
+import { getUser } from "@/lib/auth";
+
+const schema = z.object({ title: z.string().trim().min(2, "Минимум 2 символа").max(120) });
+
+export type State = { error?: string; fields?: Record<string, string[]> };
+
+export async function createProject(prev: State, formData: FormData): Promise<State> {
+  const user = await getUser();
+  if (!user) return { error: "Войдите в аккаунт" };
+
+  const parsed = schema.safeParse({ title: formData.get("title") });
+  if (!parsed.success) return { fields: parsed.error.flatten().fieldErrors };
+
+  const project = await db.project.create({ data: { title: parsed.data.title, ownerId: user.id } });
+  revalidatePath("/projects");
+  redirect(`/projects/${project.id}`);
+}
+```
+
+```tsx
+// app/projects/NewProjectForm.tsx
+"use client";
+import { useActionState } from "react";
+import { createProject, type State } from "./actions";
+
+export function NewProjectForm() {
+  const [state, action, pending] = useActionState<State, FormData>(createProject, {});
+  return (
+    <form action={action}>
+      <label htmlFor="title">Название</label>
+      <input id="title" name="title" />
+      {state.fields?.title && <p role="alert">{state.fields.title[0]}</p>}
+      {state.error && <p role="alert">{state.error}</p>}
+      <button disabled={pending}>{pending ? "Создаём…" : "Создать проект"}</button>
+    </form>
+  );
+}
+```
+
+### Частые ошибки
+- Не проверять сессию и права внутри действия, полагаясь на то, что «кнопка видна только владельцу».
+- Забыть `revalidatePath` — после создания список не обновляется.
+- Доверять скрытым полям формы (`<input type="hidden" name="ownerId">`) — их легко подменить.
+
+### Мини-задание
+Сделай форму создания и удаления заметок через Server Actions с валидацией, проверкой владельца и отображением ошибок через `useActionState`. Отключи JavaScript в DevTools и проверь, что создание всё ещё работает.
+
+@@ 2
+
+### На пальцах
+Серверный компонент — повар, который сам сходил на склад и принёс готовое блюдо. Ему не нужен посредник-официант (API), чтобы взять продукты: склад (база) — в том же здании, ключи (строка подключения) — у него в кармане, и посетители этих ключей никогда не увидят.
+
+### Как это работает
+- Серверный компонент может быть `async` и прямо внутри обращаться к базе через ORM или драйвер.
+- Код и строка подключения не попадают в браузер.
+- Клиентским компонентам передаются уже готовые данные через props (только сериализуемые: числа, строки, обычные объекты, даты превращаются в строки).
+- Доступ к базе лучше собрать в отдельный слой `lib/data/*.ts` с пометкой `import "server-only"` — тогда случайный импорт в клиентский компонент вызовет ошибку сборки.
+- Права проверяются и здесь: серверный компонент получает пользователя из сессии и фильтрует данные по нему.
+- Несколько независимых запросов — параллельно через `Promise.all`.
+
+Одно соединение с базой на приложение: в режиме разработки Next.js перезагружает модули, поэтому клиент ORM кладут в `globalThis`, чтобы не создавать новые подключения при каждом сохранении.
+
+### Пример
+```ts
+// lib/db.ts
+import { PrismaClient } from "@prisma/client";
+const g = globalThis as unknown as { prisma?: PrismaClient };
+export const db = g.prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== "production") g.prisma = db;
+```
+
+```ts
+// lib/data/projects.ts
+import "server-only";
+import { db } from "@/lib/db";
+
+export function getMyProjects(userId: number) {
+  return db.project.findMany({
+    where: { ownerId: userId },
+    select: { id: true, title: true, status: true, _count: { select: { tasks: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+}
+```
+
+```tsx
+// app/projects/page.tsx — серверный компонент
+import { redirect } from "next/navigation";
+import { getUser } from "@/lib/auth";
+import { getMyProjects } from "@/lib/data/projects";
+import { NewProjectForm } from "./NewProjectForm";
+
+export default async function ProjectsPage() {
+  const user = await getUser();
+  if (!user) redirect("/login");
+  const projects = await getMyProjects(user.id);
+
+  return (
+    <main>
+      <h1>Мои проекты</h1>
+      <NewProjectForm />
+      <ul>
+        {projects.map(p => <li key={p.id}>{p.title} · задач: {p._count.tasks}</li>)}
+      </ul>
+    </main>
+  );
+}
+```
+
+### Частые ошибки
+- Импортировать модуль с доступом к базе в клиентский компонент — секреты и драйвер попадают в бандл (защищает `server-only`).
+- `new PrismaClient()` в каждом файле — исчерпание соединений в разработке.
+- Не проверять пользователя: «страница же защищена middleware» — данные всё равно нужно фильтровать по владельцу.
+
+### Мини-задание
+Сделай страницу «Мои проекты» в Next.js, которая читает данные из базы в серверном компоненте через слой `lib/data` с `server-only`. Попробуй импортировать этот модуль в клиентский компонент и посмотри на ошибку сборки.
+
+@@ 3
+
+### На пальцах
+Аутентификацию в Next.js можно купить готовой (Auth.js — набор замков и пропусков с инструкцией) или собрать самому из знакомых деталей (bcrypt, cookie, таблица сессий). Готовая — быстро и с входом через Google и GitHub из коробки. Своя — полностью понятна и под контролем.
+
+### Как это работает
+**Auth.js (NextAuth)**:
+
+- провайдеры: Google, GitHub, Яндекс, вход по email-ссылке, логин и пароль (Credentials);
+- адаптеры для хранения пользователей и сессий в базе (Prisma, Drizzle);
+- функция `auth()` на сервере возвращает текущую сессию, `signIn`/`signOut` — вход и выход;
+- нужно задать `AUTH_SECRET` и ключи провайдеров в переменных окружения.
+
+**Своя сессия** (то же, что в Express-проекте):
+
+- Server Action входа проверяет пароль через bcrypt, создаёт сессию и ставит httpOnly-cookie через `cookies().set(...)`;
+- функция `getUser()` читает cookie через `cookies()` и находит пользователя;
+- защита страниц — проверка в серверном компоненте или layout с `redirect("/login")`.
+
+**Middleware Next.js** (`middleware.ts`) — быстрая проверка «есть ли cookie сессии» и перенаправление гостей до рендера страницы. Но это только первый фильтр: настоящую проверку прав всё равно делают там, где читаются данные.
+
+### Пример
+```ts
+// своя сессия: lib/auth.ts
+import "server-only";
+import { cookies } from "next/headers";
+import { randomBytes } from "node:crypto";
+import { db } from "@/lib/db";
+
+export async function createSession(userId: number) {
+  const id = randomBytes(32).toString("hex");
+  await db.session.create({ data: { id, userId, expiresAt: new Date(Date.now() + 30 * 864e5) } });
+  (await cookies()).set("sid", id, { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 30 * 86400 });
+}
+
+export async function getUser() {
+  const sid = (await cookies()).get("sid")?.value;
+  if (!sid) return null;
+  const s = await db.session.findUnique({ where: { id: sid }, include: { user: true } });
+  return s && s.expiresAt > new Date() ? s.user : null;
+}
+```
+
+```ts
+// middleware.ts — гостей сразу на вход
+import { NextResponse, type NextRequest } from "next/server";
+export function middleware(req: NextRequest) {
+  if (!req.cookies.get("sid")) return NextResponse.redirect(new URL("/login", req.url));
+}
+export const config = { matcher: ["/projects/:path*", "/account/:path*"] };
+```
+
+### Частые ошибки
+- Считать middleware полной защитой и не проверять пользователя при чтении данных.
+- Хранить сессию в cookie без `httpOnly`.
+- Забыть `AUTH_SECRET` на продакшене — вход ломается после деплоя.
+
+### Мини-задание
+Сделай в Next.js-проекте вход по email и паролю со своей сессией (или через Auth.js с провайдером GitHub). Защити раздел `/projects` через middleware и проверку в серверном компоненте.
+
+@@ 4
+
+### На пальцах
+Next.js с Route Handlers и Server Actions — ресторан, где кухня и зал под одной крышей: удобно, быстро, один адрес. Но если еду нужно развозить ещё в три других заведения, держать постоянную линию с поставщиками и печь хлеб всю ночь, — нужна отдельная фабрика-кухня, то есть отдельный сервер.
+
+### Как это работает
+**Хватит Next.js**, когда:
+
+- один веб-клиент — сам сайт;
+- типичный CRUD, формы, личный кабинет;
+- нет долгих операций (дольше таймаута serverless-функции, обычно 10–60 секунд);
+- нет постоянных соединений (WebSocket);
+- небольшая команда, хочется одного проекта и одного деплоя.
+
+**Нужен отдельный сервер** (Express, NestJS, Fastify), когда:
+
+- у API несколько клиентов: сайт, мобильное приложение, партнёры;
+- нужны WebSocket и постоянные соединения;
+- долгие задачи, очереди, воркеры, cron;
+- тяжёлые вычисления или обработка файлов;
+- отдельная команда бэкенда, другой язык, свой ритм релизов;
+- нужен полный контроль над окружением, а не serverless.
+
+Промежуточный вариант — Next.js для интерфейса и простых операций, а отдельный сервис только для того, что Next.js делает плохо (чат на WebSocket, воркер очередей).
+
+### Пример
+```text
+Сайт студии с личным кабинетом клиента
+→ Next.js: страницы, кабинет, Server Actions для заявок и комментариев, Route Handler для вебхука оплаты.
+  Достаточно.
+
+Сервис доставки: сайт + мобильные приложения курьера и клиента + трекинг на карте в реальном времени
+→ Next.js для сайта
+→ отдельный API (Node.js) для мобильных приложений, WebSocket для трекинга, очередь для уведомлений.
+```
+
+### Частые ошибки
+- Писать отдельный Express-сервер для простого лендинга с формой.
+- Пытаться держать WebSocket или долгие фоновые задачи в serverless-функциях Vercel.
+- Дублировать бизнес-логику в Next.js и отдельном сервере вместо одного источника.
+
+### Мини-задание
+Для своего финального проекта распиши требования и реши: хватит ли Next.js или нужен отдельный сервер. Аргументируй тремя пунктами из списков выше и зафиксируй решение в README.
+
+@@ 5
+
+### На пальцах
+В Next.js живут и серверный, и клиентский код, поэтому переменные окружения бывают двух видов: секретные — для подсобки (только сервер) и публичные — для витрины (их видит каждый посетитель). Префикс `NEXT_PUBLIC_` — ценник «можно показывать покупателям». Повесить его на сейф — значит выставить сейф на витрину.
+
+### Как это работает
+- Переменная **без** префикса (`DATABASE_URL`, `AUTH_SECRET`, `STRIPE_SECRET_KEY`) доступна только в серверном коде: серверные компоненты, Route Handlers, Server Actions, middleware.
+- Переменная **с** префиксом `NEXT_PUBLIC_` (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_YANDEX_METRIKA_ID`) подставляется в клиентский JS при сборке — её видит каждый в DevTools.
+- Попытка прочитать серверную переменную в клиентском компоненте даст `undefined`.
+- Публичные переменные «вшиваются» при `next build` — после их изменения нужна пересборка.
+- Файлы: `.env.local` — локальные значения (в `.gitignore`), `.env.example` — подсказка в репозитории. На Vercel — настройки проекта для Production, Preview, Development.
+
+Проверку переменных удобно делать так же, как в Express: zod-схема в `lib/env.ts`, отдельно для серверных и публичных.
+
+### Пример
+```bash
+# .env.local
+DATABASE_URL=postgresql://...neon.tech/neondb?sslmode=require
+AUTH_SECRET=длинная-случайная-строка
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+```ts
+// lib/env.ts
+import "server-only";
+import { z } from "zod";
+
+export const env = z.object({
+  DATABASE_URL: z.string().url(),
+  AUTH_SECRET: z.string().min(32),
+  NEXT_PUBLIC_SITE_URL: z.string().url(),
+}).parse(process.env);
+```
+
+```tsx
+// клиентский компонент
+"use client";
+export function ShareButton() {
+  const url = process.env.NEXT_PUBLIC_SITE_URL;   // ✅ публичная — доступна
+  // process.env.AUTH_SECRET                      // ❌ undefined, и это правильно
+  return <button onClick={() => navigator.clipboard.writeText(url!)}>Скопировать ссылку</button>;
+}
+```
+
+### Частые ошибки
+- `NEXT_PUBLIC_API_KEY` с секретным ключом платного API.
+- Изменить публичную переменную на Vercel и не пересобрать проект.
+- Читать `process.env` в десятках файлов без проверки.
+
+### Мини-задание
+Пройди по переменным своего Next.js-проекта: какие должны быть серверными, какие публичными. Сделай `lib/env.ts` с проверкой. Собери проект и поищи в `.next/static` значение одной публичной и одной секретной переменной — первая найдётся, вторая нет.
