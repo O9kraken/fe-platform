@@ -5,7 +5,7 @@ async function showAuth(){
   let cfg = {registration:true};
   try{ cfg = await api("GET", "/api/config"); }catch(e){}
   $("#authSwitch").hidden = !cfg.registration;
-  setAuthMode("login");
+  setAuthMode(cfg.registration && /[?&]mode=register\b/.test(location.search) ? "register" : "login");
   $("#authUser").focus();
 }
 function setAuthMode(m){

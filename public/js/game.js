@@ -118,6 +118,26 @@ function renderHeader(){
   bd.hidden = !due; bd.textContent = due;
   $("#miniXp").textContent = `${t}/${S.goal} XP`;
   $("#miniStreak").textContent = `${streak()} дн. подряд`;
+  syncSummary(x, L, t, due);
+}
+
+/* ---------- сводка для лендинга: маленький документ, чтобы главная страница показывала прогресс без загрузки курса ---------- */
+let lastSummary = "";
+function syncSummary(x, L, t, due){
+  try{
+    const step = nextStep(), n = step ? step.n : trackLen(), les = lessonAt(n);
+    const solved = Object.values(S.ex).filter(e => e && e.passed).length;
+    const days7 = Array.from({length:7}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - 6 + i); return S.xpDay[dayKey(d)] || 0; });
+    const sum = {v:1, xp:x, level:L, title:levelTitle(L), lvlFrom:lvlStart(L), lvlTo:lvlStart(L + 1), today:t, goal:S.goal, streak:streak(),
+      pct:coursePct(), track:trackKey(), trackName:TRACKS[trackKey()].name, week:n, weeks:trackLen(), lesson:les ? les.t : "", mod:les ? MODULES[les.mod].name : "",
+      done:!step, solved, exTotal:EX.length, cards:due, ach:Object.keys(S.ach).length, achTotal:ACH.length, days7, day:today()};
+    const j = JSON.stringify(sum);
+    if(j === lastSummary) return;
+    const first = !lastSummary; lastSummary = j;
+    const prev = Store.get("summary"), changed = JSON.stringify({...prev, at:undefined}) !== JSON.stringify({...sum, at:undefined});
+    Store.mem.summary = {...sum, at:Date.now()};
+    if(changed || !first) Store.save("summary");
+  }catch(e){ console.warn("summary", e); }
 }
 
 /* ---------- онбординг ---------- */

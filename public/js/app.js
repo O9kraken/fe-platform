@@ -1299,11 +1299,20 @@ async function startApp(me){
   aiChecked = true;
   sel = calWeek();
   const hm = /^#w(\d{1,2})$/.exec(location.hash || ""); if(hm){ const v = +hm[1]; if(v >= 1 && v <= trackLen()) sel = v; }
+  const hv = /^#(today|route|practice|cards|play|gloss|method|ready|account|admin)$/.exec(location.hash || "");
+  if(hv && (hv[1] !== "admin" || ME.role === "admin")) view = hv[1];
+  else if(hm) view = "route";
   loadNotes();
   renderOther(); setView(view);
   maybeOnboard();
   setTimeout(() => ensureCM(), 1500);
 }
+addEventListener("hashchange", () => {
+  if(!S) return;
+  const h = location.hash || "", w = /^#w(\d{1,2})$/.exec(h), v = /^#(today|route|practice|cards|play|gloss|method|ready|account|admin)$/.exec(h);
+  if(w){ if(view !== "route") setView("route"); go(+w[1]); }
+  else if(v && (v[1] !== "admin" || ME.role === "admin") && v[1] !== view) setView(v[1]);
+});
 (async () => {
   try{ const me = await api("GET", "/api/me"); await startApp(me); }
   catch(e){ showAuth(); }

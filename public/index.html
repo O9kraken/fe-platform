@@ -3,210 +3,310 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Веб-разработка с нуля</title>
-<meta name="description" content="Учебная платформа: Frontend, Backend и Fullstack с нуля. Редактор кода с автотестами, тренажёры SQL и API, наставник.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231F4FD8'/%3E%3Cpath d='M12 10l-6 6 6 6M20 10l6 6-6 6' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>ZERO/STACK — веб-разработка с нуля</title>
+<meta name="description" content="Учебная платформа: Frontend, Backend и Fullstack с нуля. 55 уроков с конспектами, 62 задачи с автотестами, тренажёры SQL и API, живые схемы и наставник.">
+<meta name="theme-color" content="#050505">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
-<link rel="stylesheet" href="/vendor/codemirror/lib/codemirror.css">
-<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500&family=Doto:wght@600;900&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/landing.css">
 </head>
 <body>
-<main class="auth" id="auth" hidden>
-  <div class="auth-card">
-    <div><span class="eyebrow">Учебная платформа</span><h1>Веб-разработка с нуля</h1></div>
-    <p>Три направления: Frontend, Backend и Fullstack. Войди, чтобы прогресс сохранялся на любом устройстве.</p>
-    <div class="seg" id="authSwitch" role="group" aria-label="Вход или регистрация">
-      <button type="button" data-auth="login" aria-pressed="true">Вход</button>
-      <button type="button" data-auth="register" aria-pressed="false">Регистрация</button>
-    </div>
-    <form id="authForm" novalidate>
-      <label class="field" for="authUser">Логин<input type="text" id="authUser" autocomplete="username" autocapitalize="off" spellcheck="false" required></label>
-      <label class="field" for="authName" id="authNameRow" hidden>Как тебя зовут<input type="text" id="authName" autocomplete="name" maxlength="60"></label>
-      <label class="field" for="authPass">Пароль<input type="password" id="authPass" autocomplete="current-password" required></label>
-      <p class="hint" id="authHint"></p>
-      <p class="err" id="authErr" role="alert"></p>
-      <button class="btn" id="authSubmit">Войти</button>
-    </form>
-  </div>
-</main>
-<div class="shell" id="app" hidden>
-  <aside class="side" id="side" aria-label="Меню">
-    <div class="side-brand">
-      <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg></div>
-      <div><b id="heroTitle">Веб-разработка с нуля</b><span id="heroEyebrow"></span></div>
-    </div>
-    <div class="side-me">
-      <div class="lvl"><div class="lvl-badge" id="lvlNum">1</div><div class="lvl-txt"><b id="lvlTitle">Новичок</b><span id="lvlNext"></span><div class="bar"><i id="lvlBar" style="width:0"></i></div></div></div>
-      <div class="side-stats">
-        <div class="goalring" id="goalRing"></div>
-        <div class="streakbox" id="streakBox"><svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 01-12 0c0-3 1.5-4.5 3-6 0 2 1 3 2 3 0-4-1-6 1-9z"/></svg><div><b id="stStreak">0</b><span>дней подряд</span></div></div>
-      </div>
-    </div>
-    <nav class="side-nav" aria-label="Разделы">
-      <p class="nav-h">Учёба</p>
-      <button class="nav-i" data-tab="today"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg><span>Сегодня</span></button>
-      <button class="nav-i" data-tab="route"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span>Маршрут</span></button>
-      <button class="nav-i" data-tab="practice"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg><span>Практика</span></button>
-      <button class="nav-i" data-tab="cards"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="14" height="13" rx="2"/><path d="M7 3h12a2 2 0 012 2v12"/></svg><span>Повторение</span><em class="nav-badge" id="cardsBadge" hidden></em></button>
-      <p class="nav-h">Инструменты</p>
-      <button class="nav-i" data-tab="play"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 001.8 3h10.4a2 2 0 001.8-3l-5-9V3"/><path d="M7 15h10"/></svg><span>Песочница</span></button>
-      <button class="nav-i" data-tab="gloss"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6a3 3 0 013 3v13a2 2 0 00-2-2H4zM20 4h-6a3 3 0 00-3 3v13a2 2 0 012-2h7z"/></svg><span>Словарь</span></button>
-      <p class="nav-h">Карьера</p>
-      <button class="nav-i" data-tab="ready"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M3 13h18"/></svg><span>Готов к работе?</span></button>
-      <button class="nav-i" data-tab="method"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2V17h5v-1.1c0-.8.4-1.5 1-2A6 6 0 0012 3z"/></svg><span>Как учиться</span></button>
-      <div id="adminTab" hidden><p class="nav-h">Администратор</p><button class="nav-i" data-tab="admin"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M18 14a6 6 0 013.5 6"/></svg><span>Ученики</span></button></div>
-    </nav>
-    <button class="side-acc" data-tab="account"><span class="avatar" id="accAvatar">?</span><span class="acc-txt"><b id="accountTab">Аккаунт</b><small>Профиль и направление</small></span></button>
-  </aside>
-  <div class="scrim" id="scrim" hidden></div>
-  <main class="main" id="main">
-    <header class="topbar">
-      <button class="iconbtn menu-btn" id="menuBtn" aria-label="Открыть меню" aria-controls="side" aria-expanded="false"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-      <h1 id="viewTitle">Сегодня</h1>
-      <button class="searchbtn" id="searchBtn" aria-label="Поиск по курсу" title="Поиск по курсу (Ctrl + K)"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Поиск</span><kbd>Ctrl K</kbd></button>
-      <div class="top-mini" aria-hidden="true"><span id="miniXp"></span><span id="miniStreak"></span></div>
-    </header>
+<div class="bg" aria-hidden="true"></div>
 
-  <section id="tab-today" class="today"></section>
-
-  <section id="tab-route" class="route" hidden>
-    <div class="weekbar" id="weekbar"></div>
-    <article class="week" id="week"></article>
-  </section>
-
-  <div class="mapdrawer" id="mapDrawer" hidden role="dialog" aria-modal="true" aria-label="Все недели">
-    <div class="md-head"><b>Все недели</b><button class="iconbtn" id="mapClose" aria-label="Закрыть">✕</button></div>
-    <aside class="rail" id="rail" aria-label="Недели курса"></aside>
-  </div>
-
-  <section id="tab-practice" class="panel" hidden></section>
-  <section id="tab-cards" class="panel" hidden></section>
-  <section id="tab-play" class="panel" hidden></section>
-
-  <section id="tab-gloss" class="panel" hidden>
-    <h2>Словарь для курицы</h2>
-    <p>Слова, которые будут встречаться каждую неделю. Одна строка «что это» и одна бытовая аналогия.</p>
-    <div class="gloss" id="gloss"></div>
-  </section>
-
-  <section id="tab-method" class="panel" hidden>
-    <h2>Как учиться, чтобы не бросить</h2>
-    <p>Пять коротких занятий в неделю лучше одного марафона в воскресенье. Мозг запоминает то, к чему возвращается, а не то, что долго читал.</p>
-    <div class="tbl"><table>
-      <thead><tr><th>Часть занятия</th><th>Доля</th><th>Что делаешь</th></tr></thead>
-      <tbody>
-        <tr><td>Теория</td><td>20–30%</td><td>Читаешь тему недели, жмёшь «Разобрать» у непонятного пункта, выписываешь термины своими словами.</td></tr>
-        <tr><td>Практика</td><td>50–60%</td><td>Решаешь задачи в редакторе, пока все тесты не станут зелёными. Потом меняешь условие сам и ломаешь код нарочно.</td></tr>
-        <tr><td>Повторение</td><td>10–20%</td><td>Через пару дней решаешь задачу ещё раз с нуля. Или генерируешь похожую.</td></tr>
-      </tbody>
-    </table></div>
-    <div class="split">
-      <div><h3>Как пользоваться платформой</h3><ul>
-        <li>Каждый день открывай «Маршрут» на текущей неделе и закрывай хотя бы один пункт. Так растёт серия дней.</li>
-        <li>Задачи решай сначала сам. Подсказки открываются по одной, эталон — после трёх попыток.</li>
-        <li>Когда встроенные задачи недели закончились, жми «Сгенерировать задачу».</li>
-        <li>Любой код из объяснений можно открыть в песочнице кнопкой «В песочницу».</li>
-        <li>Ctrl + Enter в редакторе — запустить, Ctrl + / — закомментировать строку.</li>
-      </ul></div>
-      <div><h3>Правила</h3><ul>
-        <li>Не вставляй код, который не можешь объяснить построчно.</li>
-        <li>Ошибка — подсказка. Прочитай сообщение в консоли, найди строку, проверяй гипотезы по одной.</li>
-        <li>Наставник объясняет и подсказывает, но не пишет решение за тебя.</li>
-        <li>Один стек: HTML/CSS → JS → TS → React → Next.js.</li>
-        <li>Застрял — задержись на неделе. Отставание от календаря не провал.</li>
-      </ul>
-      <h3>Что установить к неделе 2</h3><ul>
-        <li>Chrome или Firefox с DevTools</li>
-        <li>VS Code + Prettier, ESLint</li>
-        <li>Git и аккаунт GitHub, Node.js LTS</li>
-        <li>Для бэкенда: бесплатная база в Neon, Docker Desktop, Bruno или Postman для запросов</li>
-      </ul></div>
-    </div>
-  </section>
-
-  <section id="tab-ready" class="panel" hidden>
-    <h2 id="readyTitle">Готов к работе?</h2>
-    <p>Отмечай честно. Когда закрыто 9 из 10 — начинай откликаться, не дожидаясь идеала.</p>
-    <ul class="checks" id="readyList"></ul>
-    <div class="split">
-      <div><h3>Какие вакансии смотреть</h3><ul id="rolesList"></ul></div>
-      <div><h3>Как искать</h3><ul>
-        <li>В сопроводительном письме: какая задача у компании и какой твой проект её закрывает.</li>
-        <li>Вопросы с каждого собеседования разбирай с наставником.</li>
-        <li>Проверь, работает ли компания с твоей страной и форматом оформления.</li>
-      </ul></div>
-    </div>
-  </section>
-  <section id="tab-account" class="panel" hidden></section>
-  <section id="tab-admin" class="panel" hidden></section>
-  <p class="store" id="storeNote"></p>
-  </main>
-  <nav class="bottombar" aria-label="Быстрые разделы">
-    <button data-tab="today"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg><span>Сегодня</span></button>
-    <button data-tab="route"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span>Маршрут</span></button>
-    <button data-tab="practice"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg><span>Практика</span></button>
-    <button data-tab="cards"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="14" height="13" rx="2"/><path d="M7 3h12a2 2 0 012 2v12"/></svg><span>Повторение</span></button>
-    <button id="moreBtn" aria-label="Все разделы"><svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Ещё</span></button>
+<header class="nav" id="nav">
+  <a class="brand" href="/" aria-label="ZERO/STACK — на главную">
+    <svg class="dots" viewBox="0 0 15 21" aria-hidden="true"><use href="#zero"/></svg>
+    <b>ZERO<i>/</i>STACK</b>
+  </a>
+  <nav class="nav-links" id="navLinks" aria-label="Разделы страницы">
+    <a href="#tracks">Направления</a>
+    <a href="#lesson">Урок</a>
+    <a href="#lab">Лаборатория</a>
+    <a href="#schemes">Схемы</a>
+    <a href="#program">Программа</a>
+    <a href="#faq">Вопросы</a>
   </nav>
-</div>
-<div class="onb" id="onb" hidden role="dialog" aria-modal="true" aria-labelledby="onbTitle"></div>
+  <div class="nav-acc" id="navAcc">
+    <a class="btn ghost sm" href="/app">Войти</a>
+    <a class="btn cta sm" href="/app?mode=register" data-reg>Начать</a>
+  </div>
+  <button class="burger" id="burger" aria-label="Меню" aria-expanded="false" aria-controls="navLinks"><span></span><span></span></button>
+</header>
 
-<div class="lab" id="lab" hidden role="dialog" aria-modal="true" aria-labelledby="labTitle" data-pane="code" data-mode="web">
-  <div class="lab-top">
-    <button class="btn ghost sm" id="labClose" aria-label="Закрыть лабораторию">← Назад</button>
-    <div class="lab-title" id="labTitleBox"><b id="labTitle">Задача</b><small id="labSub"></small></div>
-    <span class="lab-score" id="labScore" hidden></span>
-    <button class="btn ghost sm" id="labRun" title="Ctrl + Enter">▶ Запустить</button>
-    <button class="btn sm" id="labCheck" title="Ctrl + Shift + Enter">Проверить</button>
-  </div>
-  <div class="lab-switch" role="group" aria-label="Панели">
-    <button data-pane="task" aria-pressed="false">Задание</button>
-    <button data-pane="code" aria-pressed="true">Код</button>
-    <button data-pane="out" aria-pressed="false">Результат</button>
-  </div>
-  <div class="lab-body">
-    <section class="pane pane-task" id="labTask"></section>
-    <section class="pane pane-code">
-      <div class="files" id="labFiles" role="tablist" aria-label="Файлы"></div>
-      <div class="editor" id="labEditor"></div>
-      <div class="code-foot">
-        <label><input type="checkbox" id="labAuto"> Автозапуск при правке</label>
-        <span id="labSaved"></span>
-        <button class="linkish" id="labReset">Сбросить код</button>
+<main>
+  <!-- 01 HERO -->
+  <section class="hero wrap" id="top">
+    <div class="hero-txt reveal">
+      <p class="eyebrow"><b>01</b> / Учебная платформа</p>
+      <h1>С нуля<br>до fullstack<span class="red">.</span></h1>
+      <p class="lead">Frontend, Backend и Fullstack с самого начала. Короткие уроки, живые схемы, редактор кода с автотестами и наставник, который объясняет так, что поймёт даже курица.</p>
+      <div class="hero-cta" id="heroCta">
+        <a class="btn cta" href="/app?mode=register" data-reg>Начать обучение</a>
+        <a class="btn line" href="#program">Смотреть программу</a>
       </div>
-    </section>
-    <section class="pane pane-out">
-      <div class="out-head"><span id="outLabel">Результат</span></div>
-      <div class="frame-wrap" id="frameWrap"></div>
-      <div class="sql-out" id="sqlOut" aria-live="polite"></div>
-      <form class="req" id="reqForm" autocomplete="off">
-        <div class="req-row">
-          <select id="reqMethod" aria-label="Метод"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select>
-          <input type="text" id="reqUrl" aria-label="Адрес" value="/api/">
-          <button class="btn sm">Отправить</button>
+      <dl class="hero-facts">
+        <div><dt>Темп</dt><dd>8–12 ч в неделю</dd></div>
+        <div><dt>Нужно</dt><dd>только браузер</dd></div>
+        <div><dt>Старт</dt><dd>с нуля, без опыта</dd></div>
+      </dl>
+    </div>
+
+    <div class="hero-side reveal" id="heroSide">
+      <div class="zero-art" aria-hidden="true">
+        <svg viewBox="0 0 21 27"><circle cx="1.5" cy="1.5" r=".95"/><circle cx="4.5" cy="1.5" r=".95"/><circle cx="7.5" cy="1.5" r=".95"/><circle cx="10.5" cy="1.5" r=".95"/><circle cx="13.5" cy="1.5" r=".95"/><circle cx="16.5" cy="1.5" r=".95"/><circle cx="19.5" cy="1.5" r=".95"/><circle cx="1.5" cy="4.5" r=".95"/><circle cx="4.5" cy="4.5" r=".95"/><circle cx="7.5" cy="4.5" r=".95" class="on"/><circle cx="10.5" cy="4.5" r=".95" class="on"/><circle cx="13.5" cy="4.5" r=".95" class="on"/><circle cx="16.5" cy="4.5" r=".95"/><circle cx="19.5" cy="4.5" r=".95"/><circle cx="1.5" cy="7.5" r=".95"/><circle cx="4.5" cy="7.5" r=".95" class="on"/><circle cx="7.5" cy="7.5" r=".95"/><circle cx="10.5" cy="7.5" r=".95"/><circle cx="13.5" cy="7.5" r=".95"/><circle cx="16.5" cy="7.5" r=".95" class="on"/><circle cx="19.5" cy="7.5" r=".95"/><circle cx="1.5" cy="10.5" r=".95"/><circle cx="4.5" cy="10.5" r=".95" class="on"/><circle cx="7.5" cy="10.5" r=".95"/><circle cx="10.5" cy="10.5" r=".95"/><circle cx="13.5" cy="10.5" r=".95" class="on"/><circle cx="16.5" cy="10.5" r=".95" class="on"/><circle cx="19.5" cy="10.5" r=".95"/><circle cx="1.5" cy="13.5" r=".95"/><circle cx="4.5" cy="13.5" r=".95" class="on"/><circle cx="7.5" cy="13.5" r=".95"/><circle cx="10.5" cy="13.5" r=".95" class="on"/><circle cx="13.5" cy="13.5" r=".95"/><circle cx="16.5" cy="13.5" r=".95" class="on"/><circle cx="19.5" cy="13.5" r=".95"/><circle cx="1.5" cy="16.5" r=".95"/><circle cx="4.5" cy="16.5" r=".95" class="on"/><circle cx="7.5" cy="16.5" r=".95" class="on"/><circle cx="10.5" cy="16.5" r=".95"/><circle cx="13.5" cy="16.5" r=".95"/><circle cx="16.5" cy="16.5" r=".95" class="on"/><circle cx="19.5" cy="16.5" r=".95"/><circle cx="1.5" cy="19.5" r=".95"/><circle cx="4.5" cy="19.5" r=".95" class="on"/><circle cx="7.5" cy="19.5" r=".95"/><circle cx="10.5" cy="19.5" r=".95"/><circle cx="13.5" cy="19.5" r=".95"/><circle cx="16.5" cy="19.5" r=".95" class="on"/><circle cx="19.5" cy="19.5" r=".95"/><circle cx="1.5" cy="22.5" r=".95"/><circle cx="4.5" cy="22.5" r=".95"/><circle cx="7.5" cy="22.5" r=".95" class="on"/><circle cx="10.5" cy="22.5" r=".95" class="on"/><circle cx="13.5" cy="22.5" r=".95" class="on"/><circle cx="16.5" cy="22.5" r=".95"/><circle cx="19.5" cy="22.5" r=".95"/><circle cx="1.5" cy="25.5" r=".95"/><circle cx="4.5" cy="25.5" r=".95"/><circle cx="7.5" cy="25.5" r=".95"/><circle cx="10.5" cy="25.5" r=".95"/><circle cx="13.5" cy="25.5" r=".95"/><circle cx="16.5" cy="25.5" r=".95"/><circle cx="19.5" cy="25.5" r=".95"/></svg>
+        <div class="widget w1"><span>Уроков</span><b data-count="55">55</b></div>
+        <div class="widget w2"><span>Задач с тестами</span><b data-count="62">62</b></div>
+        <div class="widget w3"><span>Проверка</span><b>&lt;1<small>с</small></b></div>
+      </div>
+      <!-- карточка аккаунта появляется здесь после входа -->
+    </div>
+  </section>
+
+  <!-- полоса цифр -->
+  <section class="strip wrap reveal" aria-label="Платформа в цифрах">
+    <div><b>03</b><span>направления</span></div>
+    <div><b>55</b><span>уроков с конспектами</span></div>
+    <div><b>62</b><span>задачи с автопроверкой</span></div>
+    <div><b>15</b><span>живых схем</span></div>
+    <div><b>06</b><span>режимов редактора</span></div>
+    <div><b>19</b><span>достижений</span></div>
+  </section>
+
+  <!-- 02 НАПРАВЛЕНИЯ -->
+  <section class="sec wrap" id="tracks">
+    <div class="sec-head reveal">
+      <p class="eyebrow"><b>02</b> / Направления</p>
+      <h2>Выбери свой путь<span class="red">.</span></h2>
+      <p class="sec-lead">Три маршрута с одной основой. Общие уроки засчитываются везде, поэтому направление можно сменить в любой момент, и прогресс не пропадёт.</p>
+    </div>
+    <div class="tracks" id="trackCards"></div>
+  </section>
+
+  <!-- 03 УРОК -->
+  <section class="sec wrap" id="lesson">
+    <div class="sec-head reveal">
+      <p class="eyebrow"><b>03</b> / Как устроен урок</p>
+      <h2>Одна неделя — одна тема<span class="red">.</span></h2>
+      <p class="sec-lead">Каждый урок собран по одной схеме: сначала понять, потом потрогать руками, потом закрепить. Прогресс по каждому шагу отмечается и виден на карте курса.</p>
+    </div>
+    <div class="cells reveal">
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v4h4M8 11h8M8 15h8M8 19h5"/></svg></i><em>01</em><b>Конспект</b><p>Главные идеи, рабочие примеры кода и блок «Запомни». Можно вернуться в любой момент.</p></div>
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><path d="M12 3a7 7 0 017 7c0 5-7 11-7 11S5 15 5 10a7 7 0 017-7z"/><circle cx="12" cy="10" r="2.5"/></svg></i><em>02</em><b>По-куриному</b><p>Зачем это нужно — простыми словами и на бытовом примере, без терминов.</p></div>
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7.5l3 8M16 7.5l-3 8M8.5 6h7"/></svg></i><em>03</em><b>Схема</b><p>Интерактивная картинка: двигаешь ползунки и видишь, как работает механизм.</p></div>
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><path d="M4 6l2 2 4-4M4 13l2 2 4-4M4 20l2 2 4-4M13 6h7M13 13h7M13 20h7"/></svg></i><em>04</em><b>Темы</b><p>Чек-лист того, что нужно знать. Кнопка «Разобрать» объяснит любую тему подробнее.</p></div>
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></i><em>05</em><b>Практика</b><p>Задачи в редакторе прямо на странице. Тесты сразу говорят, что получилось.</p></div>
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg></i><em>06</em><b>Проект недели</b><p>Небольшая самостоятельная работа, из которых складывается портфолио.</p></div>
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 114 2c-1 .6-1.5 1.2-1.5 2.5M12 17h.01"/></svg></i><em>07</em><b>Тест</b><p>Короткие вопросы с разбором ответа: почему верно именно так.</p></div>
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h12a4 4 0 014 4v12H8a4 4 0 01-4-4z"/><path d="M8 9h8M8 13h5"/></svg></i><em>08</em><b>Дневник</b><p>Что понял, что было трудно, что повторить. Пишешь для себя — так знания держатся дольше.</p></div>
+    </div>
+  </section>
+
+  <!-- 04 ЛАБОРАТОРИЯ -->
+  <section class="sec wrap" id="lab">
+    <div class="split">
+      <div class="sec-head reveal">
+        <p class="eyebrow"><b>04</b> / Лаборатория</p>
+        <h2>Пишешь код — тесты отвечают сразу<span class="red">.</span></h2>
+        <p class="sec-lead">Полноценный редактор с подсветкой и автодополнением скобок. Ничего не нужно устанавливать: код выполняется в изолированной песочнице браузера.</p>
+        <ul class="modes">
+          <li><code>HTML · CSS · JS</code><span>живое превью, тесты проверяют разметку и стили</span></li>
+          <li><code>JS · TS</code><span>консоль, TypeScript компилируется на лету</span></li>
+          <li><code>REACT</code><span>React 18 и JSX без сборки</span></li>
+          <li><code>NODE API</code><span>Express в браузере: маршруты, middleware и панель запросов</span></li>
+          <li><code>SQL</code><span>настоящая база студии: клиенты, проекты, платежи</span></li>
+        </ul>
+        <p class="note">Застрял — открой подсказку, спроси наставника или посмотри эталон. Наставник может придумать новую задачу по теме, а платформа сама проверит её тесты эталонным решением.</p>
+      </div>
+
+      <div class="ide reveal" id="ide" aria-label="Пример задачи в лаборатории">
+        <div class="ide-top"><i></i><i></i><i></i><span>server.js · Node API</span><em class="score" id="ideScore">0/4</em></div>
+        <pre class="ide-code" aria-hidden="true"><span class="c">// GET /api/projects/:id — найти проект</span>
+<span class="k">app</span>.<span class="f">get</span>(<span class="s">"/api/projects/:id"</span>, (req, res) =&gt; {
+  <span class="k">const</span> p = projects.<span class="f">find</span>(x =&gt; x.id === <span class="f">Number</span>(req.params.id));
+  <span class="k">if</span> (!p) <span class="k">return</span> res.<span class="f">status</span>(<span class="n">404</span>).<span class="f">json</span>({ error: <span class="s">"Нет проекта"</span> });
+  res.<span class="f">json</span>(p);
+});</pre>
+        <ul class="ide-tests" id="ideTests">
+          <li>GET /api/projects/1 → 200</li>
+          <li>В ответе нужный проект</li>
+          <li>GET /api/projects/999 → 404</li>
+          <li>Ошибка приходит в JSON</li>
+        </ul>
+        <div class="ide-foot"><span class="hint">Нажми — увидишь, как работает проверка</span><button class="btn cta sm" id="ideRun" type="button">Проверить</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 СХЕМЫ -->
+  <section class="sec wrap" id="schemes">
+    <div class="sec-head reveal">
+      <p class="eyebrow"><b>05</b> / Интерактивные схемы</p>
+      <h2>Сложное — на картинках, которые можно трогать<span class="red">.</span></h2>
+      <p class="sec-lead">Пятнадцать живых объяснений к самым запутанным темам. Попробуй прямо здесь: это кусочек тренажёра Flexbox из урока по CSS.</p>
+    </div>
+    <div class="split rev">
+      <div class="flexdemo reveal" id="flexDemo">
+        <div class="fd-ctrl">
+          <span class="lbl">justify-content</span>
+          <div class="fd-chips" data-prop="justifyContent">
+            <button aria-pressed="true" data-v="flex-start">flex-start</button><button data-v="center">center</button><button data-v="space-between">space-between</button><button data-v="space-around">space-around</button>
+          </div>
+          <span class="lbl">align-items</span>
+          <div class="fd-chips" data-prop="alignItems">
+            <button aria-pressed="true" data-v="stretch">stretch</button><button data-v="flex-start">flex-start</button><button data-v="center">center</button><button data-v="flex-end">flex-end</button>
+          </div>
         </div>
-        <textarea id="reqBody" rows="2" aria-label="Тело запроса" placeholder='Тело JSON, например {"title": "Новая задача"}' hidden></textarea>
-        <input type="text" id="reqHeaders" aria-label="Заголовки" placeholder="Заголовки: Authorization: Bearer token-boris; X-Client-Id: A">
-      </form>
-      <div class="console">
-        <div class="out-head"><span>Консоль <span id="conCount"></span></span><button class="linkish" id="conClear">Очистить</button></div>
-        <ul class="con-list" id="conList" aria-live="polite"></ul>
+        <div class="fd-box" id="fdBox"><i>1</i><i>2</i><i>3</i></div>
+        <code class="fd-code" id="fdCode">.box { display: flex; justify-content: flex-start; align-items: stretch; }</code>
       </div>
-    </section>
-  </div>
-</div>
-<div class="toast" id="toast" hidden role="status"></div>
+      <ol class="schemes reveal" id="schemeList">
+        <li>Путь запроса: от адреса до страницы</li><li>Git: коммиты, ветки и слияние</li><li>Специфичность CSS: кто победит</li>
+        <li>Блочная модель: из чего складывается ширина</li><li>Flexbox-тренажёр</li><li>Резиновая сетка: auto-fit и minmax</li>
+        <li>map, filter, reduce — конвейер</li><li>Event loop по шагам</li><li>Кто перерисовывается в React</li>
+        <li>Собери HTTP-запрос</li><li>Запрос идёт через middleware</li><li>Как работает JOIN</li>
+        <li>Зачем индекс в базе данных</li><li>JWT изнутри: что видно и что защищено</li><li>Кеш: попадания, промахи и TTL</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 06 ИГРА -->
+  <section class="sec wrap" id="game">
+    <div class="sec-head reveal">
+      <p class="eyebrow"><b>06</b> / Мотивация</p>
+      <h2>Прогресс, который видно<span class="red">.</span></h2>
+      <p class="sec-lead">За каждый шаг начисляется опыт. Уровни, цель на день, серия дней и достижения помогают не бросить на третьей неделе.</p>
+    </div>
+    <div class="game reveal">
+      <div class="gcard xp">
+        <span class="lbl">Опыт за действия</span>
+        <ul class="xp-list">
+          <li><span>Решённая задача</span><b>+40</b></li>
+          <li><span>Верный ответ в тесте</span><b>+10</b></li>
+          <li><span>Запись в дневнике</span><b>+10</b></li>
+          <li><span>Пройденная тема</span><b>+5</b></li>
+          <li><span>Прочитанный конспект</span><b>+5</b></li>
+          <li><span>Карточка повторения</span><b>+2</b></li>
+        </ul>
+      </div>
+      <div class="gcard levels">
+        <span class="lbl">10 уровней</span>
+        <ol class="ladder" id="ladder"></ol>
+      </div>
+      <div class="gcard goal">
+        <span class="lbl">Цель на день</span>
+        <div class="goal-ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="rb"/><circle cx="60" cy="60" r="52" class="rf" id="goalArc"/></svg><div><b id="goalVal">50</b><span>XP в день</span></div></div>
+        <div class="goal-chips" id="goalChips"><button data-g="30">30</button><button data-g="50" aria-pressed="true">50</button><button data-g="100">100</button><button data-g="150">150</button></div>
+        <p class="goal-min" id="goalMin">≈ 40 минут в день</p>
+      </div>
+      <div class="gcard leitner">
+        <span class="lbl">Повторение по Лейтнеру</span>
+        <p>Карточки с терминами и вопросами пройденных недель возвращаются тогда, когда ты начинаешь их забывать.</p>
+        <div class="lt-bars" aria-label="Интервалы повторения в днях"><div><i style="--h:10%"></i><b>1</b></div><div><i style="--h:18%"></i><b>3</b></div><div><i style="--h:30%"></i><b>7</b></div><div><i style="--h:46%"></i><b>14</b></div><div><i style="--h:70%"></i><b>30</b></div><div><i style="--h:100%"></i><b>60</b></div></div>
+        <span class="lt-cap">дней до следующего показа</span>
+      </div>
+      <div class="gcard ach">
+        <span class="lbl">19 достижений</span>
+        <div class="ach-list"><span>Первый шаг</span><span>Зелёные тесты</span><span>Свой сервер</span><span>Говорю на SQL</span><span>Первый компонент</span><span>Неделя закрыта</span><span>Без пропусков</span><span>Полсотни</span><span>Модуль пройден</span><span>…и ещё 10</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 НАСТАВНИК -->
+  <section class="sec wrap" id="mentor">
+    <div class="split">
+      <div class="sec-head reveal">
+        <p class="eyebrow"><b>07</b> / Наставник</p>
+        <h2>Наставник, который не устаёт от вопросов<span class="red">.</span></h2>
+        <p class="sec-lead">Встроен в каждый урок и в лабораторию. Видит задачу и твой код, поэтому отвечает по делу, а не общими словами.</p>
+        <ul class="ticks">
+          <li>Разбирает любую тему недели простыми словами</li>
+          <li>Объясняет, почему не проходит тест, и не выдаёт ответ сразу</li>
+          <li>Придумывает новые задачи по теме — с тестами и эталоном</li>
+          <li>Проверяет дневник и подсказывает, что повторить</li>
+        </ul>
+      </div>
+      <div class="chat reveal" aria-label="Пример диалога с наставником">
+        <div class="msg me">Почему <code>map</code> вернул массив из <code>undefined</code>?</div>
+        <div class="msg ai"><span class="who">Наставник</span>Представь конвейер: на ленту кладут яйца, а курица на каждом шаге должна положить обратно что-то новое. Если она ничего не положила — на ленте пусто, то есть <code>undefined</code>.<br><br>Внутри фигурных скобок нужен <code>return</code>:<pre>arr.map(x =&gt; { <b>return</b> x * 2; })
+arr.map(x =&gt; x * 2) <i>// или без скобок</i></pre></div>
+        <div class="msg me">Понял! А почему без скобок работает?</div>
+        <div class="typing" aria-hidden="true"><i></i><i></i><i></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 ПРОГРАММА -->
+  <section class="sec wrap" id="program">
+    <div class="sec-head reveal">
+      <p class="eyebrow"><b>08</b> / Программа</p>
+      <h2>Вся программа по неделям<span class="red">.</span></h2>
+      <p class="sec-lead">Выбери направление и посмотри, что будет на каждой неделе. Это настоящие уроки платформы.</p>
+    </div>
+    <div class="prog reveal">
+      <div class="seg" id="progTabs" role="tablist" aria-label="Направление"></div>
+      <div class="prog-sum" id="progSum"></div>
+      <div class="prog-list" id="progList"></div>
+    </div>
+  </section>
+
+  <!-- 09 АККАУНТ -->
+  <section class="sec wrap" id="account">
+    <div class="sec-head reveal">
+      <p class="eyebrow"><b>09</b> / Аккаунт и данные</p>
+      <h2>Всё сохраняется в твоём аккаунте<span class="red">.</span></h2>
+    </div>
+    <div class="cells three reveal">
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="13" height="10" rx="1.5"/><rect x="15" y="9" width="6" height="11" rx="1.5"/><path d="M6 18h6"/></svg></i><b>Любое устройство</b><p>Отметки, код задач, дневник и файлы песочницы хранятся на сервере. Начал на ноутбуке — продолжил с телефона.</p></div>
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></i><b>Поиск по курсу</b><p><kbd>Ctrl K</kbd> находит урок, раздел конспекта, задачу, схему или термин из словаря.</p></div>
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 001.8 3h10.4a2 2 0 001.8-3l-5-9V3"/></svg></i><b>Песочница</b><p>Свои проекты на HTML, JS, TypeScript, React, Node API и SQL. Шаблоны для быстрого старта.</p></div>
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg></i><b>Экспорт</b><p>Весь прогресс можно скачать одним файлом и загрузить обратно.</p></div>
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M18 14a6 6 0 013.5 6"/></svg></i><b>Для наставника</b><p>Панель «Ученики»: направление, процент, решённые и трудные задачи, дневник, серия дней.</p></div>
+      <div class="cell"><i class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></i><b>Безопасность</b><p>Пароли — только в виде хеша, сессия в защищённой cookie, код учеников выполняется в изолированной песочнице.</p></div>
+    </div>
+  </section>
+
+  <!-- 10 FAQ -->
+  <section class="sec wrap" id="faq">
+    <div class="sec-head reveal">
+      <p class="eyebrow"><b>10</b> / Вопросы</p>
+      <h2>Частые вопросы<span class="red">.</span></h2>
+    </div>
+    <div class="faq reveal">
+      <details open><summary>Я вообще ничего не знаю о программировании. Мне подойдёт?</summary><p>Да, курс рассчитан именно на старт с нуля. Первая неделя объясняет, как устроен интернет и что происходит, когда открываешь сайт. Каждая тема сначала объясняется простыми словами, а уже потом — терминами.</p></details>
+      <details><summary>Что нужно установить?</summary><p>Чтобы начать — ничего: уроки, редактор и тесты работают в браузере. По ходу курса ты сам установишь VS Code, Node.js и Git — для этого есть отдельные уроки с пошаговыми инструкциями.</p></details>
+      <details><summary>Какое направление выбрать?</summary><p>Нравится делать то, что видно на экране, — Frontend. Интересно, как устроены данные, серверы и базы — Backend. Хочешь уметь сделать сервис целиком — Fullstack, он длиннее, зато полный. Сомневаешься — начни с Fullstack: первые недели у всех направлений общие.</p></details>
+      <details><summary>Можно сменить направление потом?</summary><p>Да, в настройках аккаунта. Общие уроки — основа, JavaScript, TypeScript, SQL — засчитываются во всех направлениях, поэтому пройденное не потеряется.</p></details>
+      <details><summary>Сколько времени это займёт?</summary><p>Frontend — 30 недель, Backend — 31, Fullstack — 40 при темпе 8–12 часов в неделю. Цель на день можно выбрать от 25 минут до двух часов.</p></details>
+      <details><summary>Как проверяются задачи?</summary><p>У каждой задачи есть автотесты: они запускают твой код, проверяют разметку, стили, ответы сервера или результат SQL-запроса. Если что-то не так, видно, какой именно тест упал и почему.</p></details>
+      <details><summary>Что делать, если не понимаю тему?</summary><p>Нажми «Разобрать» рядом с темой — придёт подробное объяснение с примерами. Можно задать вопрос наставнику своими словами, перечитать конспект или открыть схему.</p></details>
+      <details><summary>Хватит ли этого, чтобы найти работу?</summary><p>В конце каждого направления есть раздел «Готов к работе?»: чек-лист навыков, которые спрашивают на собеседованиях, и подходящие вакансии. Плюс два-три проекта в портфолио, сделанные по ходу курса.</p></details>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="final wrap reveal" id="final">
+    <svg class="final-dots" viewBox="0 0 15 21" aria-hidden="true"><use href="#zero"/></svg>
+    <p class="eyebrow"><b>11</b> / Старт</p>
+    <h2 id="finalTitle">Готов начать<span class="red">?</span></h2>
+    <p class="sec-lead" id="finalLead">Регистрация занимает полминуты. Первый урок — про то, как устроен интернет, и он точно будет понятным.</p>
+    <div class="hero-cta" id="finalCta"><a class="btn cta" href="/app?mode=register" data-reg>Создать аккаунт</a><a class="btn line" href="/app">У меня уже есть аккаунт</a></div>
+  </section>
+</main>
+
+<footer class="foot wrap">
+  <a class="brand" href="#top"><svg class="dots" viewBox="0 0 15 21" aria-hidden="true"><use href="#zero"/></svg><b>ZERO<i>/</i>STACK</b></a>
+  <span>Веб-разработка с нуля · Frontend · Backend · Fullstack</span>
+  <a href="/app">Открыть платформу →</a>
+</footer>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="zero" viewBox="0 0 15 21"><circle cx="4.5" cy="1.5" r="1.15"/><circle cx="7.5" cy="1.5" r="1.15"/><circle cx="10.5" cy="1.5" r="1.15"/><circle cx="1.5" cy="4.5" r="1.15"/><circle cx="13.5" cy="4.5" r="1.15"/><circle cx="1.5" cy="7.5" r="1.15"/><circle cx="10.5" cy="7.5" r="1.15"/><circle cx="13.5" cy="7.5" r="1.15"/><circle cx="1.5" cy="10.5" r="1.15"/><circle cx="7.5" cy="10.5" r="1.15"/><circle cx="13.5" cy="10.5" r="1.15"/><circle cx="1.5" cy="13.5" r="1.15"/><circle cx="4.5" cy="13.5" r="1.15"/><circle cx="13.5" cy="13.5" r="1.15"/><circle cx="1.5" cy="16.5" r="1.15"/><circle cx="13.5" cy="16.5" r="1.15"/><circle cx="4.5" cy="19.5" r="1.15"/><circle cx="7.5" cy="19.5" r="1.15"/><circle cx="10.5" cy="19.5" r="1.15"/></symbol>
+</svg>
 
 <script src="/js/data-weeks.js"></script>
-<script src="/js/data-ex.js"></script>
 <script src="/js/lessons-extra.js"></script>
-<script src="/js/data-ex-backend.js"></script>
-<script src="/js/app.js"></script>
-<script src="/js/visuals.js"></script>
-<script src="/js/game.js"></script>
-<script src="/js/extras.js"></script>
-<script src="/js/account.js"></script>
+<script src="/js/landing.js"></script>
 </body>
 </html>
