@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Frontend с нуля</title>
-<meta name="description" content="Учебная платформа: курс Frontend-разработки с нуля за 30 недель, редактор кода с автотестами и наставник.">
+<title>Веб-разработка с нуля</title>
+<meta name="description" content="Учебная платформа: Frontend, Backend и Fullstack с нуля. Редактор кода с автотестами, тренажёры SQL и API, наставник.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231F4FD8'/%3E%3Cpath d='M12 10l-6 6 6 6M20 10l6 6-6 6' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,8 +15,8 @@
 <body>
 <main class="auth" id="auth" hidden>
   <div class="auth-card">
-    <div><span class="eyebrow">Учебная платформа</span><h1>Frontend с нуля</h1></div>
-    <p>30 недель от первого index.html до Next.js. Войди, чтобы прогресс сохранялся на любом устройстве.</p>
+    <div><span class="eyebrow">Учебная платформа</span><h1>Веб-разработка с нуля</h1></div>
+    <p>Три направления: Frontend, Backend и Fullstack. Войди, чтобы прогресс сохранялся на любом устройстве.</p>
     <div class="seg" id="authSwitch" role="group" aria-label="Вход или регистрация">
       <button type="button" data-auth="login" aria-pressed="true">Вход</button>
       <button type="button" data-auth="register" aria-pressed="false">Регистрация</button>
@@ -34,9 +34,9 @@
 <div class="wrap" id="app" hidden>
   <header class="top">
     <div class="brand">
-      <span class="eyebrow">30 недель · 8–12 часов в неделю · старт 26 октября 2026</span>
-      <h1>Frontend с нуля</h1>
-      <p>От первого index.html до Next.js-приложения в портфолио. Объяснения на пальцах, задачи с автопроверкой прямо в браузере, песочница для экспериментов и наставник, которого можно спросить в любой момент.</p>
+      <span class="eyebrow" id="heroEyebrow"></span>
+      <h1 id="heroTitle">Веб-разработка с нуля</h1>
+      <p id="heroSub"></p>
     </div>
     <div class="stats" aria-live="polite">
       <div class="stat"><b id="stNow">1</b><span>неделя по календарю</span></div>
@@ -56,6 +56,8 @@
     <button class="tab" role="tab" data-tab="admin" aria-selected="false" id="adminTab" hidden>Ученики</button>
     <button class="tab acc" role="tab" data-tab="account" aria-selected="false" id="accountTab">Аккаунт</button>
   </nav>
+
+  <section id="trackPick" class="panel" hidden></section>
 
   <section id="tab-route" class="route">
     <aside class="rail" id="rail" aria-label="Недели курса"></aside>
@@ -101,18 +103,17 @@
         <li>Chrome или Firefox с DevTools</li>
         <li>VS Code + Prettier, ESLint</li>
         <li>Git и аккаунт GitHub, Node.js LTS</li>
+        <li>Для бэкенда: бесплатная база в Neon, Docker Desktop, Bruno или Postman для запросов</li>
       </ul></div>
     </div>
   </section>
 
   <section id="tab-ready" class="panel" hidden>
-    <h2>Готов откликаться на Junior Frontend?</h2>
+    <h2 id="readyTitle">Готов к работе?</h2>
     <p>Отмечай честно. Когда закрыто 9 из 10 — начинай откликаться, не дожидаясь идеала.</p>
     <ul class="checks" id="readyList"></ul>
     <div class="split">
-      <div><h3>Какие вакансии смотреть</h3><ul>
-        <li>Junior Frontend Developer</li><li>Junior React Developer</li><li>Верстальщик → frontend</li><li>Frontend в веб-студии или агентстве</li>
-      </ul></div>
+      <div><h3>Какие вакансии смотреть</h3><ul id="rolesList"></ul></div>
       <div><h3>Как искать</h3><ul>
         <li>В сопроводительном письме: какая задача у компании и какой твой проект её закрывает.</li>
         <li>Вопросы с каждого собеседования разбирай с наставником.</li>
@@ -152,6 +153,16 @@
     <section class="pane pane-out">
       <div class="out-head"><span id="outLabel">Результат</span></div>
       <div class="frame-wrap" id="frameWrap"></div>
+      <div class="sql-out" id="sqlOut" aria-live="polite"></div>
+      <form class="req" id="reqForm" autocomplete="off">
+        <div class="req-row">
+          <select id="reqMethod" aria-label="Метод"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select>
+          <input type="text" id="reqUrl" aria-label="Адрес" value="/api/">
+          <button class="btn sm">Отправить</button>
+        </div>
+        <textarea id="reqBody" rows="2" aria-label="Тело запроса" placeholder='Тело JSON, например {"title": "Новая задача"}' hidden></textarea>
+        <input type="text" id="reqHeaders" aria-label="Заголовки" placeholder="Заголовки: Authorization: Bearer token-boris; X-Client-Id: A">
+      </form>
       <div class="console">
         <div class="out-head"><span>Консоль <span id="conCount"></span></span><button class="linkish" id="conClear">Очистить</button></div>
         <ul class="con-list" id="conList" aria-live="polite"></ul>
@@ -163,6 +174,8 @@
 
 <script src="/js/data-weeks.js"></script>
 <script src="/js/data-ex.js"></script>
+<script src="/js/lessons-extra.js"></script>
+<script src="/js/data-ex-backend.js"></script>
 <script src="/js/app.js"></script>
 <script src="/js/account.js"></script>
 </body>

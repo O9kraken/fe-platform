@@ -57,6 +57,7 @@ function renderAccount(){
       <div><b>${xp(s)}</b><span>XP</span></div>
       <div><b>${streak(s)}</b><span>дней подряд</span></div>
     </div>
+    <div class="blk"><h3>Направление</h3>${trackPickerHtml()}</div>
     <div class="split">
       <form class="blk" id="nameForm"><h3>Имя на платформе</h3>
         <label class="field" for="accName">Как тебя показывать<input type="text" id="accName" value="${esc(ME.displayName)}" maxlength="60" required></label>
@@ -110,8 +111,8 @@ const ago = d => {
   const h = Math.round(m / 60); if(h < 24) return h + " ч назад";
   const dd = Math.round(h / 24); return dd < 30 ? dd + " дн назад" : new Date(d).toLocaleDateString("ru-RU");
 };
-const emptyCourse = () => ({c:{}, q:{}, ex:{}, days:{}, j:{}});
-function curWeekOf(s){ let w = 0; for(let n = 1; n <= 30; n++) if(wp(n, s).d) w = n; return w; }
+const emptyCourse = () => ({c:{}, q:{}, ex:{}, days:{}, j:{}, v:2});
+function curWeekOf(s){ let w = 0; trackIds(s).forEach((id, i) => { if(wp(id, s).d) w = i + 1; }); return w; }
 async function renderAdmin(){
   const box = $("#tab-admin");
   if(ME.role !== "admin"){ box.innerHTML = "<p>Только для администратора.</p>"; return; }
@@ -119,18 +120,19 @@ async function renderAdmin(){
     box.innerHTML = '<p class="hint">Загружаю учеников…</p>';
     try{ adminUsers = await api("GET", "/api/admin/users"); }catch(x){ box.innerHTML = `<p class="hint">${esc(x.message)}</p>`; return; }
   }
-  const us = adminUsers.map(u => ({...u, s: u.course ? normCourse(JSON.parse(JSON.stringify(u.course))) : emptyCourse()}));
+  const us = adminUsers.map(u => { const s = u.course ? normCourse(JSON.parse(JSON.stringify(u.course))) : emptyCourse(); migrateCourse(s); return {...u, s}; });
   const active = us.filter(u => u.lastSeenAt && Date.now() - new Date(u.lastSeenAt) < 7 * 864e5).length;
   const solved = us.reduce((a, u) => a + Object.values(u.s.ex).filter(e => e && e.passed).length, 0);
   box.innerHTML = `
     <div class="panel-head"><div><h2>Ученики</h2><p class="hint" style="margin-top:6px">Прогресс всех аккаунтов. Нажми на строку, чтобы открыть подробности.</p></div><button class="btn ghost sm" id="admReload">Обновить</button></div>
     <div class="kpis"><div><b>${us.length}</b><span>аккаунтов</span></div><div><b>${active}</b><span>активны за 7 дней</span></div><div><b>${solved}</b><span>задач решено всего</span></div></div>
     <div class="tbl"><table class="adm">
-      <thead><tr><th>Ученик</th><th>Неделя</th><th>Курс</th><th>Задачи</th><th>XP</th><th>Серия</th><th>Был</th><th>AI, 7 дн</th></tr></thead>
+      <thead><tr><th>Ученик</th><th>Направление</th><th>Неделя</th><th>Курс</th><th>Задачи</th><th>XP</th><th>Серия</th><th>Был</th><th>AI, 7 дн</th></tr></thead>
       <tbody>${us.map(u => `
         <tr data-uid="${u.id}" class="${adminSel === u.id ? "sel" : ""}" tabindex="0">
           <td><b>${esc(u.displayName)}</b> <span class="hint">@${esc(u.username)}</span>${u.role === "admin" ? ' <span class="tag">админ</span>' : ""}${u.disabled ? ' <span class="tag bad">заблокирован</span>' : ""}</td>
-          <td class="num">${curWeekOf(u.s) || "—"}</td>
+          <td>${u.s.track ? TRACKS[trackKey(u.s)].name : '<span class="hint">не выбрано</span>'}</td>
+          <td class="num">${curWeekOf(u.s) || "—"}<span class="hint"> / ${trackLen(u.s)}</span></td>
           <td><div class="mini"><div class="bar"><i style="width:${coursePct(u.s)}%"></i></div><span class="num">${coursePct(u.s)}%</span></div></td>
           <td class="num">${Object.values(u.s.ex).filter(e => e && e.passed).length}</td>
           <td class="num">${xp(u.s)}</td>
@@ -138,18 +140,19 @@ async function renderAdmin(){
           <td>${ago(u.lastSeenAt)}</td>
           <td class="num">${u.aiWeek}</td>
         </tr>
-        ${adminSel === u.id ? `<tr class="detail"><td colspan="8">${adminDetail(u)}</td></tr>` : ""}`).join("")}
+        ${adminSel === u.id ? `<tr class="detail"><td colspan="9">${adminDetail(u)}</td></tr>` : ""}`).join("")}
       </tbody></table></div>`;
 }
 function adminDetail(u){
   const s = u.s, me = u.id === ME.id;
-  const mods = MODS.map(m => { let d = 0, t = 0; m.weeks.forEach(n => { const p = wp(n, s); d += p.d; t += p.t; }); const pct = Math.round(d / t * 100);
-    return `<div class="modrow" style="--c:var(${m.c})"><span>${m.id}. ${m.name}</span><div class="bar"><i style="width:${pct}%;background:var(${m.c})"></i></div><span class="num">${pct}%</span></div>`; }).join("");
-  const solvedList = allEx().filter(e => s.ex[e.id] && s.ex[e.id].passed).map(e => `<li>Неделя ${e.w}: ${esc(e.t)}</li>`).join("");
-  const struggling = allEx().filter(e => s.ex[e.id] && !s.ex[e.id].passed && s.ex[e.id].tries >= 3).map(e => `<li>Неделя ${e.w}: ${esc(e.t)} — попыток ${s.ex[e.id].tries}</li>`).join("");
-  const jWeeks = Object.keys(s.j).map(Number).filter(n => s.j[n] && Object.values(s.j[n]).some(v => v && String(v).trim())).sort((a, b) => b - a);
+  const mods = trackRuns(s).map((r, ri) => { const m = MODULES[r.mod]; let d = 0, t = 0; r.items.forEach(({id}) => { const p = wp(id, s); d += p.d; t += p.t; }); const pct = Math.round(d / t * 100);
+    return `<div class="modrow" style="--c:var(${m.c})"><span>${ri + 1}. ${m.name}</span><div class="bar"><i style="width:${pct}%;background:var(${m.c})"></i></div><span class="num">${pct}%</span></div>`; }).join("");
+  const ids = trackIds(s), lt = e => esc((LES[e.l] || {}).t || "Задача");
+  const solvedList = allEx().filter(e => s.ex[e.id] && s.ex[e.id].passed).map(e => `<li>${lt(e)}: ${esc(e.t)}</li>`).join("");
+  const struggling = allEx().filter(e => s.ex[e.id] && !s.ex[e.id].passed && s.ex[e.id].tries >= 3).map(e => `<li>${lt(e)}: ${esc(e.t)} — попыток ${s.ex[e.id].tries}</li>`).join("");
+  const jWeeks = Object.keys(s.j).filter(k => s.j[k] && Object.values(s.j[k]).some(v => v && String(v).trim())).sort((a, b) => ids.indexOf(b) - ids.indexOf(a));
   const jn = jWeeks[0];
-  const journal = jn ? `<p class="hint">Дневник, неделя ${jn}:</p><ul class="jr">${[["a","Создал"],["b","Могу объяснить"],["c","Застрял"],["d","План"]].filter(([k]) => s.j[jn][k]).map(([k, l]) => `<li><b>${l}:</b> ${esc(s.j[jn][k])}</li>`).join("")}</ul>` : '<p class="hint">Дневник пока пуст.</p>';
+  const journal = jn ? `<p class="hint">Дневник: ${esc((LES[jn] || {}).t || jn)}</p><ul class="jr">${[["a","Создал"],["b","Могу объяснить"],["c","Застрял"],["d","План"]].filter(([k]) => s.j[jn][k]).map(([k, l]) => `<li><b>${l}:</b> ${esc(s.j[jn][k])}</li>`).join("")}</ul>` : '<p class="hint">Дневник пока пуст.</p>';
   return `<div class="adm-detail">
     <div class="blk"><h4>По модулям</h4>${mods}</div>
     <div class="blk"><h4>Решённые задачи</h4>${solvedList ? `<ul class="jr">${solvedList}</ul>` : '<p class="hint">Пока ни одной.</p>'}

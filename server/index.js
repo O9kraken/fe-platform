@@ -131,7 +131,7 @@ app.get("/api/admin/users", requireUser, requireAdmin, wrap(async (req, res) => 
   res.json(rows.map(r => ({
     id: r.id, username: r.username, displayName: r.display_name, role: r.role, disabled: r.disabled,
     createdAt: r.created_at, lastSeenAt: r.last_seen_at, progressAt: r.progress_at, aiWeek: r.ai_week,
-    course: r.course ? { c: r.course.c || {}, q: r.course.q || {}, ex: r.course.ex || {}, days: r.course.days || {}, j: r.course.j || {} } : null
+    course: r.course ? { c: r.course.c || {}, q: r.course.q || {}, ex: r.course.ex || {}, days: r.course.days || {}, j: r.course.j || {}, track: r.course.track || null, v: r.course.v || 1 } : null
   })));
 }));
 
@@ -173,6 +173,7 @@ vendor("/vendor/codemirror", "codemirror");
 vendor("/vendor/babel", "@babel/standalone");
 vendor("/vendor/react", "react/umd");
 vendor("/vendor/react-dom", "react-dom/umd");
+vendor("/vendor/sqljs", "sql.js/dist");
 app.use(express.static(path.join(ROOT, "public"), { extensions: ["html"], maxAge: "5m" }));
 
 app.use("/api", (req, res) => res.status(404).json({ error: "Нет такого адреса" }));

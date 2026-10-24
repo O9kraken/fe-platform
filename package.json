@@ -2,7 +2,7 @@
   "name": "frontend-course-platform",
   "version": "1.0.0",
   "private": true,
-  "description": "Учебная платформа «Frontend с нуля»: курс, редактор кода с автотестами, аккаунты и прогресс в Postgres (Neon).",
+  "description": "Учебная платформа «Веб-разработка с нуля»: Frontend, Backend и Fullstack, редактор кода с автотестами, аккаунты и прогресс в Postgres (Neon).",
   "type": "module",
   "main": "server/index.js",
   "scripts": {
@@ -22,6 +22,7 @@
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.23.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "sql.js": "^1.12.0"
   }
 }

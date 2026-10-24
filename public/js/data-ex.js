@@ -2,7 +2,7 @@
    tests: [название, тело async-функции]. Внутри доступны $, $$, css, ok, sleep, typeInto, src. */
 const EX = [
 /* ---------- Неделя 1 ---------- */
-{id:"w1e1",w:1,t:"Разбери адрес по частям",mode:"js",
+{id:"w1e1",l:"web",t:"Разбери адрес по частям",mode:"js",
  task:"У тебя есть адрес страницы. Браузер видит в нём протокол, домен, путь, параметры и якорь. Объект <code>URL</code> умеет разбирать адрес так же, как браузер.\n\nОбъяви переменные:\n- <code>protocol</code> — протокол (вместе с двоеточием)\n- <code>host</code> — домен без порта\n- <code>path</code> — путь\n- <code>color</code> — значение параметра color\n\nИспользуй свойства объекта <code>url</code>, а не готовые строки.",
  files:{js:`const url = new URL("https://shop.example.com:8080/catalog/shoes?color=red&size=42#reviews");
 
@@ -27,7 +27,7 @@ const color = url.searchParams.get("color");
 console.log(protocol, host, path, color);`}},
 
 /* ---------- Неделя 3 ---------- */
-{id:"w3e1",w:3,t:"Страница «Обо мне»",mode:"web",
+{id:"w3e1",l:"html1",t:"Страница «Обо мне»",mode:"web",
  task:"Собери страницу о себе:\n- заголовок <code>h1</code> с именем\n- пару абзацев о себе\n- маркированный список минимум из трёх навыков\n- картинку с описанием в <code>alt</code>\n- ссылку на внешний сайт (адрес начинается с https://)",
  files:{html:`<!-- Собери страницу «Обо мне» -->
 <h1></h1>
@@ -50,7 +50,7 @@ console.log(protocol, host, path, color);`}},
 <img src="photo.jpg" alt="Алексей за ноутбуком">
 <p><a href="https://github.com">Мой GitHub</a></p>`,css:"",js:""}},
 
-{id:"w3e2",w:3,t:"Страница рецепта",mode:"web",
+{id:"w3e2",l:"html1",t:"Страница рецепта",mode:"web",
  task:"Свёрстай рецепт любимого блюда:\n- <code>h1</code> — название блюда\n- <code>h2</code> «Ингредиенты» и маркированный список (минимум 2 пункта)\n- <code>h2</code> «Шаги» и <b>нумерованный</b> список (минимум 3 шага)\n- выдели важное слово тегом <code>strong</code>",
  files:{html:`<h1>Сырники</h1>
 `,css:"",js:""},
@@ -75,7 +75,7 @@ console.log(protocol, host, path, color);`}},
 </ol>`,css:"",js:""}},
 
 /* ---------- Неделя 4 ---------- */
-{id:"w4e1",w:4,t:"Семантический каркас",mode:"web",
+{id:"w4e1",l:"html2",t:"Семантический каркас",mode:"web",
  task:"Перестрой страницу из безликих <code>div</code> на семантические теги: <code>header</code>, <code>nav</code>, <code>main</code>, <code>footer</code>. В меню должно быть минимум 3 ссылки.",
  files:{html:`<div class="top">
   <div class="logo">Студия</div>
@@ -111,7 +111,7 @@ console.log(protocol, host, path, color);`}},
 </main>
 <footer>© 2026 Студия</footer>`,css:"",js:""}},
 
-{id:"w4e2",w:4,t:"Форма заявки",mode:"web",
+{id:"w4e2",l:"html2",t:"Форма заявки",mode:"web",
  task:"Сделай форму заявки:\n- имя (обязательное поле)\n- email с типом <code>email</code>\n- телефон с типом <code>tel</code>\n- выбор услуги через <code>select</code> минимум из 2 вариантов\n- кнопка отправки\n\nУ каждого поля должна быть подпись <code>label</code>, связанная с полем.",
  files:{html:`<form>
   <!-- поля формы -->
@@ -145,7 +145,7 @@ console.log(protocol, host, path, color);`}},
 </form>`,css:"form{display:grid;gap:6px;max-width:320px}",js:""}},
 
 /* ---------- Неделя 5 ---------- */
-{id:"w5e1",w:5,t:"Мета-теги для поиска и соцсетей",mode:"web",
+{id:"w5e1",l:"html3",t:"Мета-теги для поиска и соцсетей",mode:"web",
  task:"Это полный HTML-документ. Добавь в него:\n- язык страницы <code>lang=\"ru\"</code>\n- <code>title</code> длиной 10–70 символов\n- <code>meta name=\"description\"</code> длиной 50–160 символов\n- <code>meta name=\"viewport\"</code> для мобильных\n- Open Graph: <code>meta property=\"og:title\"</code>",
  files:{html:`<!doctype html>
 <html>
@@ -179,7 +179,7 @@ console.log(protocol, host, path, color);`}},
 </body>
 </html>`,css:"",js:""}},
 
-{id:"w5e2",w:5,t:"Навигация с текущей страницей",mode:"web",
+{id:"w5e2",l:"html3",t:"Навигация с текущей страницей",mode:"web",
  task:"Сделай меню сайта из трёх страниц: главная, услуги, контакты.\n- ссылки относительные (index.html, services.html, contacts.html)\n- текущая страница отмечена атрибутом <code>aria-current=\"page\"</code> (ровно одна ссылка)\n- выдели текущую ссылку стилем через селектор <code>[aria-current=\"page\"]</code>",
  files:{html:`<nav>
   <!-- ссылки -->
@@ -198,7 +198,7 @@ console.log(protocol, host, path, color);`}},
 a[aria-current="page"] { font-weight: 700; color: #111; }`,js:""}},
 
 /* ---------- Неделя 6 ---------- */
-{id:"w6e1",w:6,t:"Кнопка из ссылки",mode:"web",
+{id:"w6e1",l:"css1",t:"Кнопка из ссылки",mode:"web",
  task:"Преврати ссылку в кнопку:\n- внутренние отступы слева и справа не меньше 12px\n- цвет фона\n- скругление углов от 4px\n- без подчёркивания\n- <code>display: inline-block</code>, чтобы работали вертикальные отступы",
  files:{html:`<a class="btn" href="#">Заказать сайт</a>
 `,css:`.btn {
@@ -220,7 +220,7 @@ a[aria-current="page"] { font-weight: 700; color: #111; }`,js:""}},
   text-decoration: none;
 }`,js:""}},
 
-{id:"w6e2",w:6,t:"Битва специфичности",mode:"web",
+{id:"w6e2",l:"css1",t:"Битва специфичности",mode:"web",
  task:"Правило <code>#promo p</code> красит все абзацы в красный. Сделай абзац <code>.note</code> синим <code>#2563eb</code>.\n\nУсловия: не удаляй и не меняй исходное правило, не используй <code>!important</code>. Обычный абзац должен остаться красным.",
  files:{html:`<div id="promo">
   <p class="note">Скидка 20% до пятницы</p>
@@ -242,7 +242,7 @@ a[aria-current="page"] { font-weight: 700; color: #111; }`,js:""}},
 #promo .note { color: #2563eb; }`,js:""}},
 
 /* ---------- Неделя 7 ---------- */
-{id:"w7e1",w:7,t:"Шапка на Flexbox",mode:"web",
+{id:"w7e1",l:"css2",t:"Шапка на Flexbox",mode:"web",
  task:"Свёрстай шапку: логотип слева, меню справа, всё выровнено по центру по вертикали. Пункты меню в ряд с промежутком от 8px.",
  files:{html:`<header class="header">
   <div class="logo">Студия</div>
@@ -285,7 +285,7 @@ a[aria-current="page"] { font-weight: 700; color: #111; }`,js:""}},
   gap: 16px;
 }`,js:""}},
 
-{id:"w7e2",w:7,t:"Три равные карточки",mode:"web",
+{id:"w7e2",l:"css2",t:"Три равные карточки",mode:"web",
  task:"Поставь карточки в ряд с промежутком от 16px. Карточки должны быть одинаковой ширины и высоты, хотя текст в них разной длины. Добавь им <code>box-sizing: border-box</code>.",
  files:{html:`<div class="cards">
   <article class="card"><h3>Лендинг</h3><p>Одна страница под рекламу.</p></article>
@@ -324,7 +324,7 @@ a[aria-current="page"] { font-weight: 700; color: #111; }`,js:""}},
 }`,js:""}},
 
 /* ---------- Неделя 8 ---------- */
-{id:"w8e1",w:8,t:"Резиновая галерея на Grid",mode:"web",
+{id:"w8e1",l:"css3",t:"Резиновая галерея на Grid",mode:"web",
  task:"Сделай галерею, которая сама решает, сколько колонок поместится: каждая не уже 120px. Используй <code>repeat(auto-fit, minmax(...))</code> и промежуток от 8px. Поменяй ширину окна результата и посмотри, как перестраиваются колонки.",
  files:{html:`<div class="gallery">
   <div class="item">1</div><div class="item">2</div><div class="item">3</div>
@@ -364,7 +364,7 @@ a[aria-current="page"] { font-weight: 700; color: #111; }`,js:""}},
   gap: 12px;
 }`,js:""}},
 
-{id:"w8e2",w:8,t:"Меню по принципу mobile-first",mode:"web",
+{id:"w8e2",l:"css3",t:"Меню по принципу mobile-first",mode:"web",
  task:"Сделай меню mobile-first:\n- по умолчанию <code>.menu</code> — flex-колонка (телефон)\n- в <code>@media (min-width: 600px)</code> — ряд\n- не используй <code>max-width</code> в медиазапросах",
  files:{html:`<nav class="menu">
   <a href="#">Главная</a>
@@ -396,7 +396,7 @@ a[aria-current="page"] { font-weight: 700; color: #111; }`,js:""}},
 }`,js:""}},
 
 /* ---------- Неделя 9 ---------- */
-{id:"w9e1",w:9,t:"Тема на CSS-переменных",mode:"web",
+{id:"w9e1",l:"css4",t:"Тема на CSS-переменных",mode:"web",
  task:"Объяви в <code>:root</code> переменную <code>--accent</code> и используй её для фона кнопки <code>.btn</code> и цвета ссылки <code>.link</code>. Тест поменяет переменную и проверит, что перекрасилось и то, и другое.",
  files:{html:`<button class="btn">Записаться</button>
 <a class="link" href="#">Подробнее</a>
@@ -430,7 +430,7 @@ a[aria-current="page"] { font-weight: 700; color: #111; }`,js:""}},
 
 .link { color: var(--accent); }`,js:""}},
 
-{id:"w9e2",w:9,t:"Плавный hover с уважением к настройкам",mode:"web",
+{id:"w9e2",l:"css4",t:"Плавный hover с уважением к настройкам",mode:"web",
  task:"Сделай кнопке плавный hover:\n- <code>transition</code> длительностью больше нуля\n- в <code>.btn:hover</code> — сдвиг через <code>transform</code>\n- в <code>@media (prefers-reduced-motion: reduce)</code> отключи переход",
  files:{html:`<button class="btn">Наведи на меня</button>
 `,css:`.btn {
@@ -464,7 +464,7 @@ a[aria-current="page"] { font-weight: 700; color: #111; }`,js:""}},
 }`,js:""}},
 
 /* ---------- Неделя 10 ---------- */
-{id:"w10e1",w:10,t:"Калькулятор заказа",mode:"js",
+{id:"w10e1",l:"js1",t:"Калькулятор заказа",mode:"js",
  task:"Объяви переменные:\n- <code>price</code> — 1500, не меняется\n- <code>qty</code> — 3, может меняться (поэтому <code>let</code>)\n- <code>discount</code> — 0.1\n- <code>total</code> — итог: цена × количество со скидкой\n\nВыведи <code>total</code> в консоль.",
  files:{js:`// Калькулятор заказа
 
@@ -482,7 +482,7 @@ const discount = 0.1;
 const total = price * qty * (1 - discount);
 console.log(total);`}},
 
-{id:"w10e2",w:10,t:"Шаблонная строка",mode:"js",
+{id:"w10e2",l:"js1",t:"Шаблонная строка",mode:"js",
  task:"Собери строку <code>greeting</code> вида <code>Привет, Аня! Город: Казань.</code> из переменных <code>firstName</code> и <code>city</code> с помощью шаблонной строки (обратные кавычки и <code>${}</code>).",
  files:{js:`const firstName = "Аня";
 const city = "Казань";
@@ -495,7 +495,7 @@ const city = "Казань";
  sol:{js:"const firstName = \"Аня\";\nconst city = \"Казань\";\n\nconst greeting = `Привет, ${firstName}! Город: ${city}.`;\nconsole.log(greeting);"}},
 
 /* ---------- Неделя 11 ---------- */
-{id:"w11e1",w:11,t:"Цена сайта по тарифу",mode:"js",
+{id:"w11e1",l:"js2",t:"Цена сайта по тарифу",mode:"js",
  task:"Допиши функцию <code>getPrice(type, urgent)</code>:\n- визитка — 20 000, лендинг — 35 000, магазин — 90 000\n- если <code>urgent</code> равно true — цена ×1.5\n- неизвестный тип — вернуть <code>null</code>",
  files:{js:`function getPrice(type, urgent) {
   // твой код
@@ -521,7 +521,7 @@ console.log(getPrice("блог", false));    // null
   return urgent ? price * 1.5 : price;
 }`}},
 
-{id:"w11e2",w:11,t:"Вход по билету",mode:"js",
+{id:"w11e2",l:"js2",t:"Вход по билету",mode:"js",
  task:"Функция <code>canEnter(age, hasTicket)</code> возвращает <code>true</code>, только если возраст от 18 лет <b>и</b> есть билет. Во всех остальных случаях — <code>false</code>. Возвращай именно логическое значение.",
  files:{js:`function canEnter(age, hasTicket) {
 
@@ -537,7 +537,7 @@ console.log(getPrice("блог", false));    // null
 }`}},
 
 /* ---------- Неделя 12 ---------- */
-{id:"w12e1",w:12,t:"Красивая цена",mode:"js",
+{id:"w12e1",l:"js3",t:"Красивая цена",mode:"js",
  task:"Напиши <code>formatPrice(n)</code>: делит число на разряды обычным пробелом и добавляет знак рубля.\n- 1500 → <code>\"1 500 ₽\"</code>\n- 999 → <code>\"999 ₽\"</code>\n- 1234567 → <code>\"1 234 567 ₽\"</code>",
  files:{js:`function formatPrice(n) {
 
@@ -561,7 +561,7 @@ console.log(formatPrice(1234567));
   return out + " ₽";
 }`}},
 
-{id:"w12e2",w:12,t:"Считаем гласные",mode:"js",
+{id:"w12e2",l:"js3",t:"Считаем гласные",mode:"js",
  task:"Напиши <code>countVowels(str)</code> — сколько русских гласных в строке (а е ё и о у ы э ю я), без учёта регистра. Используй цикл.",
  files:{js:`function countVowels(str) {
 
@@ -583,7 +583,7 @@ console.log(formatPrice(1234567));
 }`}},
 
 /* ---------- Неделя 13 ---------- */
-{id:"w13e1",w:13,t:"Фильтр, поиск и сумма",mode:"js",
+{id:"w13e1",l:"js4",t:"Фильтр, поиск и сумма",mode:"js",
  task:"Напиши три функции для массива услуг:\n- <code>byCategory(list, cat)</code> — услуги нужной категории (через <code>filter</code>)\n- <code>search(list, q)</code> — услуги, в названии которых есть строка q, без учёта регистра\n- <code>total(list)</code> — сумма цен (через <code>reduce</code>)\n\nИсходный массив менять нельзя.",
  files:{js:`const services = [
   { name: "Лендинг", price: 35000, category: "сайты" },
@@ -624,7 +624,7 @@ function total(list) {
   return list.reduce((sum, s) => sum + s.price, 0);
 }`}},
 
-{id:"w13e2",w:13,t:"Группировка по категориям",mode:"js",
+{id:"w13e2",l:"js4",t:"Группировка по категориям",mode:"js",
  task:"Напиши:\n- <code>groupNames(list)</code> → объект вида <code>{ \"сайты\": [\"Лендинг\", \"Магазин\"], ... }</code>\n- <code>mostExpensive(list)</code> → объект самой дорогой услуги",
  files:{js:`const services = [
   { name: "Лендинг", price: 35000, category: "сайты" },
@@ -665,7 +665,7 @@ function mostExpensive(list) {
 }`}},
 
 /* ---------- Неделя 14 ---------- */
-{id:"w14e1",w:14,t:"Счётчик кликов",mode:"web",
+{id:"w14e1",l:"js5",t:"Счётчик кликов",mode:"web",
  task:"Оживи счётчик:\n- «+» увеличивает число на 1\n- «−» уменьшает, но не ниже нуля\n- «Сброс» возвращает 0",
  files:{html:`<p>Счёт: <span id="count">0</span></p>
 <button id="minus">−</button>
@@ -704,7 +704,7 @@ document.querySelector("#reset").addEventListener("click", () => {
   render();
 });`}},
 
-{id:"w14e2",w:14,t:"Список задач",mode:"web",
+{id:"w14e2",l:"js5",t:"Список задач",mode:"web",
  task:"Сделай список задач:\n- отправка формы добавляет <code>li</code> с текстом в <code>#list</code>\n- пустой текст (или пробелы) не добавляется\n- после добавления поле очищается\n- в каждом пункте есть кнопка удаления\n- страница не перезагружается при отправке",
  files:{html:`<form id="todo-form">
   <label for="todo-input">Задача</label>
@@ -751,7 +751,7 @@ form.addEventListener("submit", (event) => {
 });`}},
 
 /* ---------- Неделя 15 ---------- */
-{id:"w15e1",w:15,t:"Загрузка пользователя",mode:"js",
+{id:"w15e1",l:"js6",t:"Загрузка пользователя",mode:"js",
  prelude:`const USERS = { 1: "Анна", 2: "Борис", 3: "Вика" };
 window.__calls = 0;
 function fakeApi(id) {
@@ -785,7 +785,7 @@ async function loadUserName(id) {
 
 loadUserName(1).then(console.log);`}},
 
-{id:"w15e2",w:15,t:"Параллельные запросы",mode:"js",
+{id:"w15e2",l:"js6",t:"Параллельные запросы",mode:"js",
  prelude:`const USERS = { 1: "Анна", 2: "Борис", 3: "Вика" };
 function fakeApi(id) {
   return new Promise((resolve, reject) => setTimeout(() => {
@@ -811,7 +811,7 @@ loadAll([1, 2, 3]).then(console.log);
 loadAll([1, 2, 3]).then(console.log);`}},
 
 /* ---------- Неделя 16 ---------- */
-{id:"w16e1",w:16,t:"Debounce для поиска",mode:"js",
+{id:"w16e1",l:"js7",t:"Debounce для поиска",mode:"js",
  task:"В поиске нельзя отправлять запрос на каждую букву. Напиши <code>debounce(fn, ms)</code>: возвращает новую функцию, которая вызывает <code>fn</code> только когда после последнего вызова прошло <code>ms</code> миллисекунд. Аргументы последнего вызова передаются в <code>fn</code>.",
  files:{js:`function debounce(fn, ms) {
 
@@ -835,7 +835,7 @@ log("кот"); // через 300 мс выведется только «Ищу: 
 }`}},
 
 /* ---------- Неделя 17 ---------- */
-{id:"w17e1",w:17,t:"Типизированные задачи",mode:"ts",
+{id:"w17e1",l:"ts",t:"Типизированные задачи",mode:"ts",
  task:"Опиши тип <code>Task</code>: <code>id</code> — число, <code>title</code> — строка, <code>done</code> — логическое.\n\nНапиши <code>toggle(tasks: Task[], id: number): Task[]</code> — возвращает <b>новый</b> массив, где у задачи с этим id перевёрнут <code>done</code>. Исходный массив и объекты не меняются.\n\nВ песочнице типы не проверяются, а только удаляются. Пиши их так, будто проверяются.",
  files:{ts:`// type Task = ...
 
@@ -860,7 +860,7 @@ function toggle(tasks: Task[], id: number): Task[] {
 
 console.log(toggle([{ id: 1, title: "Сверстать шапку", done: false }], 1));`}},
 
-{id:"w17e2",w:17,t:"Union-тип",mode:"ts",
+{id:"w17e2",l:"ts",t:"Union-тип",mode:"ts",
  task:"Напиши <code>formatId(id: string | number): string</code>:\n- число → <code>#</code> и 4 цифры с ведущими нулями: 7 → <code>\"#0007\"</code>\n- строка → без пробелов по краям и в верхнем регистре: <code>\" ab-12 \"</code> → <code>\"AB-12\"</code>",
  files:{ts:`function formatId(id) {
 
@@ -879,7 +879,7 @@ console.log(toggle([{ id: 1, title: "Сверстать шапку", done: false
 }`}},
 
 /* ---------- Неделя 18 ---------- */
-{id:"w18e1",w:18,t:"Карточки из массива",mode:"react",
+{id:"w18e1",l:"react1",t:"Карточки из массива",mode:"react",
  task:"Допиши компонент <code>Card</code>: он возвращает <code>&lt;article className=\"card\"&gt;</code> с названием и ценой из props. В <code>App</code> выведи карточки через <code>services.map</code> с атрибутом <code>key</code>.",
  files:{jsx:`const services = [
   { id: 1, title: "Лендинг", price: 35000 },
@@ -936,7 +936,7 @@ function App() {
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);`,css:`.card { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 8px 0; }`}},
 
-{id:"w18e2",w:18,t:"Обёртка через children",mode:"react",
+{id:"w18e2",l:"react1",t:"Обёртка через children",mode:"react",
  task:"Сделай компонент <code>Panel</code> с пропсами <code>title</code> и <code>children</code>. Он рисует <code>&lt;section className=\"panel\"&gt;</code> с заголовком <code>h2</code> и вложенным содержимым. В <code>App</code> используй две панели с абзацами внутри.",
  files:{jsx:`function Panel({ title, children }) {
   return null;
@@ -981,7 +981,7 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);`,css:`.panel { border: 1px solid #ccc; border-radius: 8px; padding: 12px; margin-bottom: 12px; }`}},
 
 /* ---------- Неделя 19 ---------- */
-{id:"w19e1",w:19,t:"Счётчик на useState",mode:"react",
+{id:"w19e1",l:"react2",t:"Счётчик на useState",mode:"react",
  task:"Сделай счётчик: <code>&lt;span id=\"count\"&gt;</code> с числом, кнопки <code>#minus</code> и <code>#plus</code>. Минус не опускает число ниже нуля.",
  files:{jsx:`function Counter() {
   // const [count, setCount] = useState(0);
@@ -1014,7 +1014,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<Counter />);
 
 ReactDOM.createRoot(document.getElementById("root")).render(<Counter />);`,css:`button { font-size: 18px; min-width: 44px; margin-left: 8px; }`}},
 
-{id:"w19e2",w:19,t:"Живой поиск",mode:"react",
+{id:"w19e2",l:"react2",t:"Живой поиск",mode:"react",
  task:"Сделай поле <code>#search</code> и список фруктов. При вводе список фильтруется без учёта регистра. Поле управляемое: <code>value</code> из state.",
  files:{jsx:`const fruits = ["Яблоко", "Груша", "Банан", "Ананас", "Абрикос"];
 
@@ -1057,7 +1057,7 @@ function App() {
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);`,css:``}},
 
 /* ---------- Неделя 20 ---------- */
-{id:"w20e1",w:20,t:"Загрузка в useEffect",mode:"react",delay:30,
+{id:"w20e1",l:"react3",t:"Загрузка в useEffect",mode:"react",delay:30,
  prelude:`window.__calls = 0;
 function fetchServices() {
   window.__calls++;
@@ -1092,7 +1092,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);`,css:``}},
 
-{id:"w20e2",w:20,t:"Заголовок вкладки",mode:"react",
+{id:"w20e2",l:"react3",t:"Заголовок вкладки",mode:"react",
  task:"Сделай счётчик с кнопкой <code>#plus</code>. Через <code>useEffect</code> синхронизируй заголовок вкладки: <code>document.title</code> = <code>\"Счёт: N\"</code>.",
  files:{jsx:`function App() {
   const [count, setCount] = useState(0);
@@ -1109,7 +1109,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
  sol:{jsx:"function App() {\n  const [count, setCount] = useState(0);\n\n  useEffect(() => {\n    document.title = `Счёт: ${count}`;\n  }, [count]);\n\n  return <button id=\"plus\" onClick={() => setCount(c => c + 1)}>Нажато: {count}</button>;\n}\n\nReactDOM.createRoot(document.getElementById(\"root\")).render(<App />);",css:``}},
 
 /* ---------- Неделя 21 ---------- */
-{id:"w21e1",w:21,t:"Вкладки",mode:"react",
+{id:"w21e1",l:"react4",t:"Вкладки",mode:"react",
  task:"Сделай вкладки: три кнопки <code>.tab</code> и блок <code>.panel</code> с текстом активной вкладки. У активной кнопки <code>aria-selected=\"true\"</code>, у остальных <code>\"false\"</code>. По умолчанию открыта первая. Это тот же принцип, что у роутера: что показывать, решает одно значение состояния.",
  files:{jsx:`const tabs = [
   { id: "about", label: "О нас", text: "Мы делаем сайты" },
@@ -1169,7 +1169,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);`,css:`.tab
 .panel { margin-top: 12px; }`}},
 
 /* ---------- Неделя 22 ---------- */
-{id:"w22e1",w:22,t:"Тема через Context",mode:"react",
+{id:"w22e1",l:"react5",t:"Тема через Context",mode:"react",
  task:"Кнопка <code>#theme-toggle</code> спрятана глубоко: App → Header → Toolbar → ThemeButton. Передай тему и функцию переключения через Context, а не через props. У <code>.app</code> атрибут <code>data-theme</code> — <code>\"light\"</code> или <code>\"dark\"</code>. Компоненты Header и Toolbar не принимают props.",
  files:{jsx:`// const ThemeContext = createContext(null);
 
@@ -1235,7 +1235,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);`,css:`.app
 .app[data-theme="dark"] { background: #111; color: #eee; }`}},
 
 /* ---------- Неделя 27 ---------- */
-{id:"w27e1",w:27,t:"Почини доступность",mode:"web",
+{id:"w27e1",l:"perf",t:"Почини доступность",mode:"web",
  task:"На странице четыре проблемы доступности. Исправь их:\n- «кнопка» сделана из <code>div</code> — замени на настоящую <code>button</code>\n- у картинки нет <code>alt</code>\n- у поля email нет подписи <code>label</code>\n- серый текст плохо читается: контраст должен быть не ниже 4.5:1",
  files:{html:`<div class="btn" onclick="send()">Отправить</div>
 
@@ -1266,7 +1266,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);`,css:`.app
 }`}},
 
 /* ---------- Неделя 30 ---------- */
-{id:"w30e1",w:30,t:"Замыкание: счётчик",mode:"js",
+{id:"w30e1",l:"career",also:["be-career","fs-career"],t:"Замыкание: счётчик",mode:"js",
  task:"Классика собеседований. Напиши <code>makeCounter()</code>: возвращает объект с методами <code>inc()</code> (увеличивает и возвращает новое значение) и <code>get()</code>. У каждого счётчика своё значение, и никакой глобальной переменной.",
  files:{js:`function makeCounter() {
 
@@ -1293,7 +1293,7 @@ console.log(a.get()); // 2
   };
 }`}},
 
-{id:"w30e2",w:30,t:"Предскажи порядок вывода",mode:"js",
+{id:"w30e2",l:"career",also:["be-career","fs-career"],t:"Предскажи порядок вывода",mode:"js",
  task:"Не запуская код в голове наугад, разберись с event loop. В каком порядке выведутся буквы?\n\n<pre><code>console.log(\"A\");\nsetTimeout(() =&gt; console.log(\"B\"), 0);\nPromise.resolve().then(() =&gt; console.log(\"C\"));\nconsole.log(\"D\");</code></pre>\n\nЗапиши ответ массивом в <code>answer</code>. Потом можешь запустить этот код и проверить себя.",
  files:{js:`const answer = [];
 `},
@@ -1303,7 +1303,7 @@ console.log(a.get()); // 2
 
 // Синхронно: A, D. Потом микрозадача промиса: C. Потом таймер: B.`}},
 
-{id:"w30e3",w:30,t:"once",mode:"js",
+{id:"w30e3",l:"career",also:["be-career","fs-career"],t:"once",mode:"js",
  task:"Напиши <code>once(fn)</code>: возвращает функцию, которая вызывает <code>fn</code> только в первый раз, а при следующих вызовах возвращает тот же результат, что и в первый.",
  files:{js:`function once(fn) {
 
