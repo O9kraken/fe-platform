@@ -114,6 +114,37 @@ function renderHeader(){
   $("#goalRing").classList.toggle("hit", t >= S.goal);
   $("#stStreak").textContent = streak();
   $("#streakBox").classList.toggle("on", !!S.days[today()]);
+  const q = cardQueue(), due = q.due.length + q.fresh.length, bd = $("#cardsBadge");
+  bd.hidden = !due; bd.textContent = due;
+  $("#miniXp").textContent = `${t}/${S.goal} XP`;
+  $("#miniStreak").textContent = `${streak()} дн. подряд`;
+}
+
+/* ---------- онбординг ---------- */
+let onbStep = 0;
+function maybeOnboard(){ if(S.onboarded) return; onbStep = 0; $("#onb").hidden = false; document.documentElement.classList.add("lab-open"); renderOnb(); }
+function renderOnb(){
+  const box = $("#onb"); if(box.hidden) return;
+  const steps = [
+    {t:`Привет, ${esc(ME.displayName)}!`, body:`<p class="onb-lead">Это курс веб-разработки с нуля: каждая неделя — тема с объяснением на пальцах, живой схемой, задачами с автопроверкой и тестом. Для начала выбери направление.</p>${trackPickerHtml()}`},
+    {t:"Сколько заниматься в день?", body:`<p class="onb-lead">Цель считается в XP — очках за действия. Начни с малого: регулярность важнее длинных марафонов.</p>
+      <div class="goals">${[[30,"≈ 25 минут","Лёгкий старт"],[50,"≈ 40 минут","Рекомендую"],[100,"≈ 1,5 часа","Интенсив"],[150,"≈ 2 часа","Максимум"]].map(([g, m, l]) => `<button class="goalcard" data-goal="${g}" aria-pressed="${S.goal === g}"><b>${g} XP</b><span>${m}</span><em>${l}</em></button>`).join("")}</div>
+      <p class="hint">Цель можно поменять в любой момент на экране «Сегодня».</p>`},
+    {t:"Как здесь всё устроено", body:`<div class="howto">
+      <div><span class="ht-i">${glyph("base")}</span><b>Сегодня</b><p>Твой план на день: следующий шаг, цель и серия дней.</p></div>
+      <div><span class="ht-i">${glyph("proj")}</span><b>Маршрут</b><p>Недели курса: объяснение, схема, темы, задачи, тест и дневник.</p></div>
+      <div><span class="ht-i">${glyph("markup")}</span><b>Практика</b><p>Пишешь код в редакторе, тесты сразу говорят, получилось ли.</p></div>
+      <div><span class="ht-i">${glyph("data")}</span><b>Повторение</b><p>5 минут карточек в день — и термины не забываются.</p></div>
+    </div><p class="hint">Застрял — жми «Разобрать» у темы или спроси наставника внизу урока.</p>`}
+  ];
+  const st = steps[onbStep], last = onbStep === steps.length - 1;
+  box.innerHTML = `<div class="onb-card">
+    <div class="onb-dots" aria-hidden="true">${steps.map((_, i) => `<i class="${i === onbStep ? "on" : i < onbStep ? "past" : ""}"></i>`).join("")}</div>
+    <h2 id="onbTitle">${st.t}</h2>${st.body}
+    <div class="onb-nav"><button class="btn ghost" data-onb="back" ${onbStep ? "" : "hidden"}>Назад</button>
+      <button class="btn" data-onb="${last ? "done" : "next"}" ${onbStep === 0 && !S.track ? "disabled" : ""}>${last ? "Начать учиться" : "Дальше"}</button></div>
+    <button class="linkish onb-skip" data-onb="done">Пропустить</button></div>`;
+  const f = box.querySelector(".onb-card .btn:not([hidden])"); if(f && document.activeElement === document.body) f.focus();
 }
 
 /* ---------- главная «Сегодня» ---------- */
@@ -259,7 +290,12 @@ function gradeCard(g){
 document.addEventListener("click", e => {
   const t = e.target;
   const gw = t.closest("[data-goweek]"); if(gw){ const n = +gw.dataset.goweek; setView("route"); go(n); setTimeout(() => { const v = gw.dataset.scroll === "viz" ? $(".viz") : null; (v || $("#week")).scrollIntoView({behavior:"smooth", block:"start"}); }, 60); return; }
-  const gl = t.closest("[data-goal]"); if(gl){ S.goal = +gl.dataset.goal; saveCourse(); renderToday(); return; }
+  const gl = t.closest("[data-goal]"); if(gl){ S.goal = +gl.dataset.goal; saveCourse(); if(view === "today") renderToday(); renderOnb(); return; }
+  if(t.closest("[data-track]") && !$("#onb").hidden){ setTimeout(renderOnb, 0); return; }
+  const ob = t.closest("[data-onb]"); if(ob){ const a = ob.dataset.onb;
+    if(a === "next") onbStep++; if(a === "back") onbStep--;
+    if(a === "done"){ if(!S.track) S.track = "fullstack"; S.onboarded = 1; saveCourse(); $("#onb").hidden = true; document.documentElement.classList.remove("lab-open"); setView("today"); return; }
+    renderOnb(); return; }
   const cb = t.closest("[data-cards]"); if(cb){ const a = cb.dataset.cards;
     if(a === "start") startSession(false); if(a === "extra") startSession(true);
     if(a === "flip" && session){ session.flipped = !session.flipped; renderCardFace(); }

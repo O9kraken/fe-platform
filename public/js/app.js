@@ -690,23 +690,26 @@ function renderWeek(){
   const h = hist[id] || [];
   $("#week").innerHTML = `
   <div class="week-head" style="--c:var(${m.c})">
-    <div class="meta"><span class="mod">${glyph(w.mod)} Модуль ${modNo} · ${m.name}</span><span>Неделя ${n} из ${total}</span><span>${weekDates(n)}</span></div>
-    <h2>${esc(w.t)}</h2>
-    <p class="goal">${esc(w.goal)}</p>
-    <div class="wk-progress"><div class="bar"><i style="width:${p.d / p.t * 100}%;background:var(${m.c})"></i></div><span>${p.d} из ${p.t}</span></div>
+    <div class="wh-icon">${glyph(w.mod, "lg")}</div>
+    <div class="wh-txt">
+      <div class="meta"><span class="mod">Модуль ${modNo} · ${m.name}</span><span>Неделя ${n} из ${total}</span><span>${weekDates(n)}</span></div>
+      <h2>${esc(w.t)}</h2>
+      <p class="goal">${esc(w.goal)}</p>
+    </div>
+    <div class="wh-ring" id="whRing">${weekRing(p)}</div>
   </div>
   <div class="sec">
     <div class="chicken">${CHICK}<div><span class="lbl">Объяснение для курицы</span><p>${esc(w.why)}</p></div></div>
   </div>
-  ${(VIZ_FOR[id] || []).length ? `<div class="sec"><h3><span class="n">00</span>Посмотри, как это работает</h3>${VIZ_FOR[id].map(v => `<div class="viz" data-viz="${v}"></div>`).join("")}</div>` : ""}
-  <div class="sec"><h3><span class="n">01</span>Что изучить</h3>
+  ${(VIZ_FOR[id] || []).length ? `<div class="sec" id="sec-viz"><h3><span class="n">00</span>Посмотри, как это работает</h3>${VIZ_FOR[id].map(v => `<div class="viz" data-viz="${v}"></div>`).join("")}</div>` : ""}
+  <div class="sec" id="sec-learn"><h3><span class="n">01</span>Что изучить</h3>
     <p class="sec-sub">Отмечай то, что можешь объяснить своими словами. Непонятный пункт — жми «Разобрать»: наставник напишет подробный урок с примером и мини-заданием.</p>
     <ul class="checks">${w.learn.map((l, i) => { const key = `l${i}`; return `<li class="topic" id="topic-${i}">
       <div class="topic-row">${ckItem(`${id}_l${i}`, esc(l))}<button class="deep-btn ${deep[key] ? "has" : ""}" data-deep="${i}" aria-expanded="false">Разобрать</button></div>
       <div class="deep" id="deep-${i}" hidden></div></li>`; }).join("")}</ul>
     ${w.code ? `<div class="codeblk"><pre><code>${esc(w.code)}</code></pre><button class="to-sb" data-wcode="${id}">В песочницу</button></div>` : ""}
   </div>
-  <div class="sec"><h3><span class="n">02</span>Практика в редакторе</h3>
+  <div class="sec" id="sec-practice"><h3><span class="n">02</span>Практика в редакторе</h3>
     <p class="sec-sub">${builtIn.length ? "Пиши код прямо здесь. Тесты проверят решение, подсказки открываются по одной." : "У этой недели нет задач, которые можно проверить в браузере. Сгенерируй тренировочную задачу по теме."}</p>
     ${builtIn.length || gen.length ? `<div class="exlist">${[...builtIn, ...gen].map(exCard).join("")}</div>` : ""}
     <div class="gen">
@@ -715,14 +718,14 @@ function renderWeek(){
       <span class="hint" id="genHint">${aiOff() ? AI_OFF_TEXT : "Наставник придумает задачу с тестами и проверит их своим решением."}</span>
     </div>
   </div>
-  <div class="sec"><h3><span class="n">03</span>Проект недели и контрольная точка</h3>
+  <div class="sec" id="sec-project"><h3><span class="n">03</span>Проект недели и контрольная точка</h3>
     <ul class="checks task"><li>${ckItem(`${id}_do`, `<b>Сделать</b>${esc(w.do)}`)}</li><li>${ckItem(`${id}_ck`, `<b>Контроль</b>${esc(w.check)}`)}</li></ul>
   </div>
-  <div class="sec"><h3><span class="n">04</span>Проверь себя</h3><div class="quiz">${qs}</div></div>
-  <div class="sec"><h3><span class="n">05</span>Ресурсы недели</h3>
+  <div class="sec" id="sec-quiz"><h3><span class="n">04</span>Проверь себя</h3><div class="quiz">${qs}</div></div>
+  <div class="sec" id="sec-res"><h3><span class="n">05</span>Ресурсы недели</h3>
     <div class="res">${w.res.map(r => `<a href="${L[r][1]}" target="_blank" rel="noopener">${esc(L[r][0])}</a>`).join("")}</div>
   </div>
-  <div class="sec"><h3><span class="n">06</span>Спроси наставника</h3>
+  <div class="sec" id="sec-ask"><h3><span class="n">06</span>Спроси наставника</h3>
     <div class="ask">
       <div class="chips">
         <button class="chip" data-chip="Объясни тему этой недели совсем просто, как курице.">Объясни совсем просто</button>
@@ -736,7 +739,7 @@ function renderWeek(){
       <div class="row"><button class="btn" id="askBtn">Спросить</button>${h.length ? '<button class="btn ghost" id="askClear">Новый разговор</button>' : ""}<p class="hint" id="askHint">${aiOff() ? AI_OFF_TEXT : "Ctrl + Enter — отправить."}</p></div>
     </div>
   </div>
-  <div class="sec"><h3><span class="n">07</span>Дневник недели</h3>
+  <div class="sec" id="sec-journal"><h3><span class="n">07</span>Дневник недели</h3>
     <div class="journal">
       ${[["a","Что я создал?"],["b","Что могу объяснить без подсказки?"],["c","Где застрял и что пробовал?"],["d","Какой один результат сделаю на следующей неделе?"]].map(([k, l]) =>
         `<label for="j-${id}-${k}">${l}<textarea id="j-${id}-${k}" data-j="${k}" rows="3">${esc(jr[k] || "")}</textarea></label>`).join("")}
@@ -747,11 +750,44 @@ function renderWeek(){
     <button class="btn" data-go="${n + 1}" ${n === total ? "disabled" : ""}>Неделя ${Math.min(total, n + 1)} →</button>
   </div>`;
   mountViz($("#week"));
+  renderWeekbar();
 }
+function weekRing(p){ return `${ring(p.d / p.t, 76, 8)}<div><b>${p.d}/${p.t}</b><span>${p.d === p.t ? "готово" : "пунктов"}</span></div>`; }
 function updateWeekProgress(){
-  const p = wp(lessonAt(sel).id), el = $(".wk-progress");
-  if(el){ el.querySelector("i").style.width = (p.d / p.t * 100) + "%"; el.querySelector("span").textContent = `${p.d} из ${p.t}`; }
+  const p = wp(lessonAt(sel).id), el = $("#whRing");
+  if(el){ el.innerHTML = weekRing(p); el.classList.toggle("hit", p.d === p.t); }
+  renderWeekbar();
 }
+function secDone(id){
+  const w = LES[id], ex = exOf(id);
+  return {
+    "sec-learn": w.learn.every((_, i) => S.c[`${id}_l${i}`]),
+    "sec-practice": ex.length ? ex.every(e => S.ex[e.id] && S.ex[e.id].passed) : false,
+    "sec-project": !!(S.c[`${id}_do`] && S.c[`${id}_ck`]),
+    "sec-quiz": w.quiz.every((q, i) => S.q[`${id}_q${i}`] === q.a),
+    "sec-journal": !!(S.j[id] && Object.values(S.j[id]).some(v => v && String(v).trim()))
+  };
+}
+function renderWeekbar(){
+  const n = sel, w = lessonAt(n), id = w.id, total = trackLen(), done = secDone(id);
+  const secs = [...((VIZ_FOR[id] || []).length ? [["sec-viz","Схема"]] : []), ["sec-learn","Темы"], ["sec-practice","Практика"], ["sec-project","Проект"], ["sec-quiz","Тест"], ["sec-ask","Наставник"], ["sec-journal","Дневник"]];
+  const bar = $("#weekbar"); if(!bar) return;
+  bar.style.setProperty("--c", `var(${MODULES[w.mod].c})`);
+  bar.innerHTML = `<div class="wb-row">
+      <button class="iconbtn" data-go="${n - 1}" ${n === 1 ? "disabled" : ""} aria-label="Предыдущая неделя">←</button>
+      <button class="wb-title" id="openMap" aria-haspopup="dialog"><span>Неделя ${n} из ${total}</span><b>${esc(w.t)}</b><i aria-hidden="true">▾</i></button>
+      <button class="iconbtn" data-go="${n + 1}" ${n === total ? "disabled" : ""} aria-label="Следующая неделя">→</button>
+    </div>
+    <div class="wb-secs" role="navigation" aria-label="Разделы недели">${secs.map(([k, l]) => `<button class="sc ${done[k] ? "done" : ""}" data-sec="${k}">${done[k] ? "✓ " : ""}${l}</button>`).join("")}</div>`;
+  markActiveSec();
+}
+function markActiveSec(){
+  if(view !== "route") return;
+  let cur = null;
+  $$("#week .sec[id]").forEach(el => { if(el.getBoundingClientRect().top < 190) cur = el.id; });
+  $$("#weekbar .sc").forEach(b => b.classList.toggle("cur", b.dataset.sec === cur));
+}
+addEventListener("scroll", () => { if(view === "route") markActiveSec(); }, {passive:true});
 
 /* ================= deep dive ================= */
 async function toggleDeep(i, regen){
@@ -1149,29 +1185,34 @@ function renderReady(){
 }
 function rerender(){
   renderStats();
-  const tp = $("#trackPick"); tp.hidden = !((view === "route" || view === "today") && !S.track);
-  if(!tp.hidden) tp.innerHTML = `<div><h2>Выбери направление</h2><p class="hint" style="margin-top:6px">Пока стоит Fullstack. Выбор можно поменять в любой момент во вкладке «Аккаунт».</p></div>${trackPickerHtml()}`;
   if(view === "ready") renderReady();
   if(view === "today") renderToday();
   if(view === "cards") renderCards();
-  if(view === "route"){ renderRail(); renderWeek(); }
+  if(view === "route"){ renderWeek(); if(!$("#mapDrawer").hidden) renderRail(); }
   if(view === "practice") renderPractice();
   if(view === "play") renderPlay();
   if(view === "account") renderAccount();
   if(view === "admin") renderAdmin();
 }
+const VIEW_TITLES = {today:"Сегодня", route:"Маршрут", practice:"Практика", cards:"Повторение", play:"Песочница", gloss:"Словарь", method:"Как учиться", ready:"Готов к работе?", account:"Аккаунт", admin:"Ученики"};
 function setView(v){
   view = v;
-  $$(".tab").forEach(x => x.setAttribute("aria-selected", x.dataset.tab === v));
+  $$("[data-tab]").forEach(x => { const on = x.dataset.tab === v; x.classList.toggle("on", on); if(on) x.setAttribute("aria-current", "page"); else x.removeAttribute("aria-current"); });
+  $("#viewTitle").textContent = VIEW_TITLES[v] || "";
+  closeSide(); closeMap();
   ["today","route","practice","cards","play","gloss","method","ready","account","admin"].forEach(id => $("#tab-" + id).hidden = id !== v);
   rerender();
 }
-function go(n){ if(n < 1 || n > trackLen()) return; sel = n; try{ history.replaceState(null, "", "#w" + n); }catch(e){} renderRail(); renderWeek(); }
+function openSide(){ document.body.classList.add("side-open"); $("#scrim").hidden = false; $("#menuBtn").setAttribute("aria-expanded", "true"); }
+function closeSide(){ document.body.classList.remove("side-open"); if($("#mapDrawer").hidden) $("#scrim").hidden = true; $("#menuBtn").setAttribute("aria-expanded", "false"); }
+function openMap(){ renderRail(); $("#mapDrawer").hidden = false; $("#scrim").hidden = false; const cur = $('#rail .st[aria-current="true"]'); if(cur){ cur.scrollIntoView({block:"center"}); cur.focus(); } }
+function closeMap(){ const m = $("#mapDrawer"); if(!m || m.hidden) return; m.hidden = true; if(!document.body.classList.contains("side-open")) $("#scrim").hidden = true; }
+function go(n){ if(n < 1 || n > trackLen()) return; sel = n; closeMap(); try{ history.replaceState(null, "", "#w" + n); }catch(e){} renderRail(); renderWeek(); }
 
 /* ================= events ================= */
 document.addEventListener("click", e => {
   const t = e.target;
-  const st = t.closest(".st"); if(st){ go(+st.dataset.w); return; }
+  const st = t.closest(".st"); if(st){ go(+st.dataset.w); window.scrollTo({top:0}); return; }
   const g = t.closest("[data-go]"); if(g && !g.disabled){ go(+g.dataset.go); window.scrollTo({top:0, behavior:"smooth"}); return; }
   const o = t.closest(".opt"); if(o && !o.disabled){ S.q[o.dataset.q] = +o.dataset.o; const m = /^(.+)_q(\d+)$/.exec(o.dataset.q); if(m && LES[m[1]] && LES[m[1]].quiz[+m[2]].a === +o.dataset.o) award("q:" + o.dataset.q, 10); saveCourse(); renderWeek(); return; }
   const r = t.closest("[data-reset]"); if(r){ delete S.q[r.dataset.reset]; saveCourse(); renderWeek(); return; }
@@ -1187,7 +1228,11 @@ document.addEventListener("click", e => {
   const wc = t.closest("[data-wcode]"); if(wc){ codeToSandbox(LES[wc.dataset.wcode].code, "html"); return; }
   const tr = t.closest("[data-track]"); if(tr){ S.track = tr.dataset.track; sel = Math.min(sel, trackLen()); if(view === "route") sel = calWeek(); saveCourse(); renderOther(); rerender(); toast("Направление: " + TRACKS[S.track].name); return; }
   const gv = t.closest("[data-goview]"); if(gv){ setView(gv.dataset.goview); window.scrollTo({top:0, behavior:"smooth"}); return; }
-  const tab = t.closest(".tab"); if(tab){ setView(tab.dataset.tab); return; }
+  const tab = t.closest("[data-tab]"); if(tab){ setView(tab.dataset.tab); window.scrollTo({top:0}); return; }
+  if(t.closest("#menuBtn") || t.closest("#moreBtn")){ openSide(); return; }
+  if(t.closest("#scrim") || t.closest("#mapClose")){ closeSide(); closeMap(); return; }
+  if(t.closest("#openMap")){ openMap(); return; }
+  const sc = t.closest("[data-sec]"); if(sc){ const el = document.getElementById(sc.dataset.sec); if(el) el.scrollIntoView({behavior:"smooth", block:"start"}); return; }
   const pf = t.closest("[data-pf]"); if(pf){ pfilter = pf.dataset.pf; renderPractice(); return; }
   const nw = t.closest("[data-new]"); if(nw){ const it = newSnippet(nw.dataset.new); openSnippet(it.id); return; }
   const sn = t.closest("[data-snip]"); if(sn){ openSnippet(sn.dataset.snip); return; }
@@ -1228,6 +1273,7 @@ document.addEventListener("keydown", e => {
   if(e.target.id === "askIn" && e.key === "Enter" && (e.metaKey || e.ctrlKey)){ e.preventDefault(); ask(e.target.value); }
   if(e.target.id === "labQ" && e.key === "Enter" && (e.metaKey || e.ctrlKey)){ e.preventDefault(); labMentor("ask"); }
   if(e.key === "Escape" && !$("#lab").hidden){ closeLab(); }
+  else if(e.key === "Escape"){ closeSide(); closeMap(); }
   if(!$("#lab").hidden && e.key === "Enter" && (e.ctrlKey || e.metaKey) && !e.target.closest(".editor") && e.target.id !== "labQ"){ e.preventDefault(); e.shiftKey ? labCheck() : labRun(); }
 });
 
@@ -1237,13 +1283,15 @@ async function startApp(me){
   $("#auth").hidden = true; $("#app").hidden = false;
   $("#adminTab").hidden = ME.role !== "admin";
   $("#accountTab").textContent = ME.displayName || ME.username;
+  $("#accAvatar").textContent = (ME.displayName || ME.username).trim().charAt(0).toUpperCase();
   try{ await Store.loadAll(); }catch(e){ setSync("error"); }
   initCourse();
   if(me.ai) sampleFn = makeAi();
   aiChecked = true;
   sel = calWeek();
   const hm = /^#w(\d{1,2})$/.exec(location.hash || ""); if(hm){ const v = +hm[1]; if(v >= 1 && v <= trackLen()) sel = v; }
-  renderOther(); rerender();
+  renderOther(); setView(view);
+  maybeOnboard();
   setTimeout(() => ensureCM(), 1500);
 }
 (async () => {
