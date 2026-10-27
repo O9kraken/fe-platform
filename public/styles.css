@@ -1124,3 +1124,50 @@ body{margin:0}
 /* словарь: категория под названием */
 .term-top{flex-direction:column;align-items:flex-start;gap:4px}
 .term-c{text-align:left}
+
+/* === интерактивные вопросы в уроках: Предскажи / Почему так? / Проверь себя === */
+.qa{--qa:var(--accent);margin:10px 0;border:1px solid var(--line);border-left:3px solid var(--qa);border-radius:10px;background:color-mix(in srgb,var(--qa) 5%,transparent);overflow:hidden}
+.qa-predict{--qa:#FFB23A}
+.qa-why{--qa:#7AB8FF}
+.qa summary{list-style:none;cursor:pointer;display:grid;gap:4px;padding:12px 14px}
+.qa summary::-webkit-details-marker{display:none}
+.qa-k{font:500 10.5px/1.2 var(--f-mono,monospace);letter-spacing:.14em;text-transform:uppercase;color:var(--qa)}
+.qa-q{font-weight:500;color:var(--fg)}
+.qa-open{font-size:12px;color:var(--muted)}
+.qa-open::before{content:"▸ "}
+.qa[open] .qa-open{display:none}
+.qa-a{padding:0 14px 12px;border-top:1px dashed var(--line);padding-top:10px;color:var(--fg);animation:qaIn .25s ease}
+.qa-a::before{content:"Ответ: ";font-weight:600;color:var(--qa)}
+@keyframes qaIn{from{opacity:0;transform:translateY(-3px)}}
+.qa summary:focus-visible{outline:2px solid var(--qa);outline-offset:-2px}
+
+/* «Как учиться» — приёмы науки об обучении */
+.mth-head{display:flex;flex-direction:column;gap:10px}
+.mth-head p{margin:0;max-width:72ch;color:var(--muted)}
+.mth-h{font-size:17px;margin-top:6px}
+.mth-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.mth-card{--mc:var(--accent);position:relative;display:flex;flex-direction:column;gap:10px;padding:18px 18px 16px;border:1px solid var(--line);border-top:3px solid var(--mc);border-radius:12px;background:var(--surface);min-width:0}
+.mth-card h4{font-size:15px;padding-right:40px}
+.mth-card p{margin:0;font-size:14.5px}
+.mth-card .btn{align-self:flex-start;margin-top:auto}
+.mth-n{position:absolute;top:14px;right:16px;font:600 13px var(--f-mono);color:var(--mc)}
+.mth-here{background:color-mix(in srgb,var(--mc) 8%,var(--sunk));border-radius:8px;padding:9px 11px;font-size:14px!important}
+.mth-tag{display:inline-block;font:600 11px/1.6 var(--f-mono);text-transform:uppercase;letter-spacing:.04em;padding:0 6px;border-radius:4px;border:1px solid currentColor;white-space:nowrap}
+.mth-tag.t-check{color:var(--accent)}
+.mth-tag.t-why{color:#3D84D6}
+.mth-tag.t-predict{color:#B86E00}
+:root[data-theme="dark"] .mth-tag.t-why{color:#7AB8FF}
+:root[data-theme="dark"] .mth-tag.t-predict{color:#FFB23A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mth-tag.t-why{color:#7AB8FF}:root:not([data-theme="light"]) .mth-tag.t-predict{color:#FFB23A}}
+.mth-box{border:1px solid var(--line);border-radius:12px;padding:18px;background:var(--sunk)}
+.mth-box p{margin:0;font-size:14.5px}
+.mth-box ul,.mth-box ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
+.mth-box .btn{align-self:flex-start}
+.mth-steps b{font-family:var(--f-mono);font-size:13px}
+.mth-traps{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.mth-traps > div{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border:1px dashed var(--line);border-radius:10px;font-size:14px}
+.mth-traps b{color:var(--bad);font-size:14.5px}
+.mth-traps b::before{content:"✕ ";font-weight:400}
+.mth-traps span{color:var(--muted)}
+.mth-src{margin:0;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+@media (max-width:520px){.mth-grid,.mth-traps{grid-template-columns:1fr}}

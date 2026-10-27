@@ -36,7 +36,15 @@ function md(src){
     }
     return b.trim().split(/\n{2,}/).filter(Boolean).map(par => {
       const lines = par.split("\n");
-      const inl = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      const inl = s => esc(s).replace(/``\s?(.+?)\s?``|`([^`]+)`/g, (m, d, c) => "<code>" + (d ?? c) + "</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      if(lines.every(l => /^\?[?!:]\s/.test(l))) return lines.map(l => {
+        const kind = l[1] === "!" ? ["predict", "Предскажи"] : l[1] === ":" ? ["why", "Почему так?"] : ["check", "Вспомни"];
+        /* вопрос и ответ делит первый «||» вне `кода` — внутри кода он может быть оператором */
+        const body = l.slice(3); let cut = -1, inCode = false;
+        for(let i = 0; i < body.length; i++){ if(body[i] === "`") inCode = !inCode; else if(!inCode && body[i] === "|" && body[i + 1] === "|"){ cut = i; break; } }
+        const q = cut < 0 ? body : body.slice(0, cut), a = cut < 0 ? "" : body.slice(cut + 2);
+        return `<details class="qa qa-${kind[0]}"><summary><span class="qa-k">${kind[1]}</span><span class="qa-q">${inl(q.trim())}</span><span class="qa-open">Сначала ответь сам, потом открой</span></summary><div class="qa-a">${inl(a.trim())}</div></details>`;
+      }).join("");
       if(lines.length === 1 && /^#{1,4}\s/.test(lines[0])) return "<h4>" + inl(lines[0].replace(/^#+\s*/, "")) + "</h4>";
       if(lines.length > 1 && /^#{1,4}\s/.test(lines[0])) return "<h4>" + inl(lines[0].replace(/^#+\s*/, "")) + "</h4>" + md(lines.slice(1).join("\n"));
       if(lines.every(l => /^\s*\|.*\|\s*$/.test(l)) && lines.length > 1){
@@ -728,7 +736,7 @@ function renderWeek(){
   ${notesSec(id)}
   ${(VIZ_FOR[id] || []).length ? `<div class="sec" id="sec-viz"><h3><span class="n">00</span>Посмотри, как это работает</h3>${VIZ_FOR[id].map(v => `<div class="viz" data-viz="${v}"></div>`).join("")}</div>` : ""}
   <div class="sec" id="sec-learn"><h3><span class="n">01</span>Что изучить</h3>
-    <p class="sec-sub">Отмечай то, что можешь объяснить своими словами. Непонятный пункт — жми «Разобрать»: откроется подробный урок с аналогией, примером, частыми ошибками и мини-заданием.</p>
+    <p class="sec-sub">Отмечай то, что можешь объяснить своими словами. Непонятный пункт — жми «Разобрать»: откроется подробный урок: живая ситуация, аналогия, пример, вопросы «Предскажи» и «Вспомни» и мини-задание. Сначала отвечай сам, потом открывай ответ.</p>
     <ul class="checks">${w.learn.map((l, i) => { const key = `l${i}`; return `<li class="topic" id="topic-${i}">
       <div class="topic-row">${ckItem(`${id}_l${i}`, esc(l))}<button class="deep-btn ${deep[key] ? "has" : ""}" data-deep="${i}" aria-expanded="false">Разобрать</button></div>
       <div class="deep" id="deep-${i}" hidden></div></li>`; }).join("")}</ul>
