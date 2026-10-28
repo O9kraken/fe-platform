@@ -86,6 +86,7 @@ document.addEventListener("click", async e => {
   }
   /* админка */
   if(t.id === "admReload"){ adminUsers = null; renderAdmin(); return; }
+  if(t.id === "aiTest"){ loadAiStatus(true); return; }
   const row = t.closest("[data-uid]"); if(row && !t.closest("button")){ adminSel = +row.dataset.uid === adminSel ? null : +row.dataset.uid; renderAdmin(); return; }
   const act = t.closest("[data-adm]"); if(act){ adminAction(act.dataset.adm, +act.dataset.id, act); return; }
 });
@@ -126,6 +127,7 @@ async function renderAdmin(){
   box.innerHTML = `
     <div class="panel-head"><div><h2>Ученики</h2><p class="hint" style="margin-top:6px">Прогресс всех аккаунтов. Нажми на строку, чтобы открыть подробности.</p></div><button class="btn ghost sm" id="admReload">Обновить</button></div>
     <div class="kpis"><div><b>${us.length}</b><span>аккаунтов</span></div><div><b>${active}</b><span>активны за 7 дней</span></div><div><b>${solved}</b><span>задач решено всего</span></div></div>
+    <div class="ai-adm" id="aiAdm"><p class="hint">Проверяю наставника…</p></div>
     <div class="tbl"><table class="adm">
       <thead><tr><th>Ученик</th><th>Направление</th><th>Неделя</th><th>Курс</th><th>Задачи</th><th>XP</th><th>Серия</th><th>Был</th><th>AI, 7 дн</th></tr></thead>
       <tbody>${us.map(u => `
@@ -142,6 +144,24 @@ async function renderAdmin(){
         </tr>
         ${adminSel === u.id ? `<tr class="detail"><td colspan="9">${adminDetail(u)}</td></tr>` : ""}`).join("")}
       </tbody></table></div>`;
+  if(aiStat) drawAiStatus(); else loadAiStatus(false);
+}
+/* состояние наставника: какие нейросети подключены и сколько вопросов задано сегодня */
+let aiStat = null;
+async function loadAiStatus(test){
+  const box = $("#aiAdm"); if(!box) return;
+  if(test) box.querySelector("#aiTest") && (box.querySelector("#aiTest").disabled = true, box.querySelector("#aiTest").textContent = "Проверяю… до минуты");
+  try{ aiStat = await api("GET", "/api/ai/status" + (test ? "?test=1" : "")); }catch(x){ box.innerHTML = `<p class="hint">${esc(x.message)}</p>`; return; }
+  drawAiStatus();
+}
+function drawAiStatus(){
+  const box = $("#aiAdm"); if(!box || !aiStat) return;
+  const s = aiStat, pct = Math.min(100, Math.round(s.usedToday / s.globalLimit * 100));
+  box.innerHTML = `<div class="ai-adm-head"><h3>Наставник</h3><button class="btn ghost sm" id="aiTest" ${s.providers.length ? "" : "disabled"}>Проверить ответ</button></div>
+    ${s.providers.length ? `<p class="hint">Порядок: ${s.providers.map((p, i) => `<b>${esc(p.label)}</b> <code>${esc(p.model)}</code>${i ? " (запасной)" : ""}`).join(" → ")}</p>`
+      : `<p class="hint">Не подключён. Добавь на Render переменную <code>GIGACHAT_AUTH_KEY</code> (или другой ключ) и перезапусти сервис.</p>`}
+    <div class="mini"><div class="bar"><i style="width:${pct}%"></i></div><span class="num">${s.usedToday} из ${s.globalLimit} вопросов сегодня · по ${s.perUser} на ученика</span></div>
+    ${(s.test || []).map(t => `<div class="ai-test ${t.ok ? "ok" : "bad"}"><b>${esc(t.label)}</b> · ${t.ok ? `ответил за ${(t.ms / 1000).toFixed(1)} с` : "ошибка"}<p>${esc(t.ok ? t.answer : t.error)}</p></div>`).join("")}`;
 }
 function adminDetail(u){
   const s = u.s, me = u.id === ME.id;

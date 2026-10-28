@@ -650,7 +650,8 @@ class CodeEditor{
 /* ================= AI ================= */
 let sampleFn = null, aiChecked = false;
 function aiOff(){ return aiChecked && !sampleFn; }
-const AI_OFF_TEXT = "Наставник пока не подключён: администратору нужно добавить ANTHROPIC_API_KEY в настройках сервера на Render.";
+const AI_OFF_TEXT = "Наставник пока не подключён: администратору нужно добавить ключ нейросети (GIGACHAT_AUTH_KEY) в настройках сервера на Render.";
+let aiLeft = null; /* сколько вопросов наставнику осталось сегодня — приходит в заголовке ответа */
 function makeAi(){
   async function call(input, opts = {}, json = false){
     const r = await fetch("/api/ai", {method:"POST", credentials:"same-origin", headers:{"Content-Type":"application/json"}, body:JSON.stringify({input, json}), signal:opts.signal});
@@ -658,6 +659,7 @@ function makeAi(){
       let m = "Не получилось получить ответ. Попробуй ещё раз."; try{ m = (await r.json()).error || m; }catch(e){}
       const e = new Error(m); e.userMessage = m; e.code = r.status === 429 ? "rate_limited" : r.status === 503 ? "not_configured" : "error"; throw e;
     }
+    const left = r.headers.get("X-AI-Left"); if(left != null) aiLeft = +left;
     const reader = r.body.getReader(), dec = new TextDecoder(); let text = "";
     for(;;){ const {done, value} = await reader.read(); if(done) break; text += dec.decode(value, {stream:true}); opts.onText && opts.onText({text}); }
     return {text};
@@ -920,7 +922,8 @@ async function ask(text){
     const r = await sampleFn(msgs, {cache:false, onText:({text}) => { if(sel === n) box.innerHTML = md(text); }});
     out = r.text;
   }catch(e){ hist[hk].pop(); chatBusy = false; if(sel === n){ renderWeek(); $("#askHint").textContent = aiErr(e); } if(e && e.code === "not_configured") sampleFn = null; return; }
-  hist[hk].push({role:"assistant", content:out}); chatBusy = false; if(sel === n) renderWeek();
+  hist[hk].push({role:"assistant", content:out}); chatBusy = false;
+  if(sel === n){ renderWeek(); if(aiLeft != null && $("#askHint")) $("#askHint").textContent = `Осталось вопросов наставнику сегодня: ${aiLeft}. Ctrl + Enter — отправить.`; }
 }
 
 /* ================= exercise generation ================= */

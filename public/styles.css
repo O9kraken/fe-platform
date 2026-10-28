@@ -1376,3 +1376,10 @@ button,a,summary,label,select,[role="button"],.pm-node{touch-action:manipulation
 .notes ol > li::before{content:counter(nts);position:absolute;left:0;top:0;width:27px;height:27px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--f-mono);background:color-mix(in srgb,var(--accent) 14%,var(--surface));border:1.5px solid var(--accent);color:var(--fg)}
 .notes ol > li::after{content:"";position:absolute;left:13px;top:29px;bottom:2px;width:1.5px;background:color-mix(in srgb,var(--accent) 35%,transparent)}
 .notes ol > li:last-child::after{display:none}
+.ai-adm{border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;background:var(--sunk)}
+.ai-adm-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.ai-adm h3{font-size:15px}
+.ai-adm .mini span{font-size:12.5px}
+.ai-test{border-left:3px solid var(--ok);padding:6px 10px;font-size:13.5px;background:var(--surface);border-radius:0 8px 8px 0}
+.ai-test.bad{border-left-color:var(--bad)}
+.ai-test p{margin:4px 0 0;color:var(--muted)}

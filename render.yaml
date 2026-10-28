@@ -22,11 +22,11 @@ services:
         value: KRAKER
       - key: ADMIN_PASSWORD
         sync: false
-      - key: ANTHROPIC_API_KEY
+      - key: GIGACHAT_AUTH_KEY
         sync: false
-      - key: AI_MODEL
-        value: claude-sonnet-5-5
       - key: AI_DAILY_LIMIT
-        value: "60"
+        value: "30"
+      - key: AI_GLOBAL_DAILY_LIMIT
+        value: "500"
       - key: ALLOW_REGISTRATION
         value: "true"

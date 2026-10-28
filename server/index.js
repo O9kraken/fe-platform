@@ -7,7 +7,7 @@ import {
   USERNAME_RE, isReserved, hashPassword, checkPassword, publicUser, setSession, clearSession,
   requireUser, requireAdmin, seedAdmin, loginLimited, loginFailed, loginOk
 } from "./auth.js";
-import { aiHandler, aiEnabled } from "./ai.js";
+import { aiHandler, aiEnabled, aiStatus } from "./ai.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PORT = process.env.PORT || 3000;
@@ -119,6 +119,7 @@ app.put("/api/docs/:name", requireUser, wrap(async (req, res) => {
 
 /* ---------- наставник ---------- */
 app.post("/api/ai", requireUser, wrap(aiHandler));
+app.get("/api/ai/status", requireUser, requireAdmin, wrap(aiStatus));
 
 /* ---------- админка ---------- */
 app.get("/api/admin/users", requireUser, requireAdmin, wrap(async (req, res) => {
