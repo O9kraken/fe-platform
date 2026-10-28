@@ -45,12 +45,17 @@ function md(src){
         const q = cut < 0 ? body : body.slice(0, cut), a = cut < 0 ? "" : body.slice(cut + 2);
         return `<details class="qa qa-${kind[0]}"><summary><span class="qa-k">${kind[1]}</span><span class="qa-q">${inl(q.trim())}</span><span class="qa-open">Сначала ответь сам, потом открой</span></summary><div class="qa-a">${inl(a.trim())}</div></details>`;
       }).join("");
+      if(lines.every(l => /^>>\s/.test(l))) return lines.map(l => {
+        const steps = l.slice(3).split(/\s+→\s+/).map(x => x.trim()).filter(Boolean);
+        return `<div class="flow" role="img" aria-label="Схема: ${esc(steps.join(", затем ").replace(/`/g, ""))}">${steps.map((x, k) => `${k ? '<span class="flow-ar" aria-hidden="true"></span>' : ""}<span class="flow-s"><i>${k + 1}</i><span>${inl(x)}</span></span>`).join("")}</div>`;
+      }).join("");
       if(lines.length === 1 && /^#{1,4}\s/.test(lines[0])) return "<h4>" + inl(lines[0].replace(/^#+\s*/, "")) + "</h4>";
       if(lines.length > 1 && /^#{1,4}\s/.test(lines[0])) return "<h4>" + inl(lines[0].replace(/^#+\s*/, "")) + "</h4>" + md(lines.slice(1).join("\n"));
       if(lines.every(l => /^\s*\|.*\|\s*$/.test(l)) && lines.length > 1){
         const cells = l => l.trim().replace(/^\||\|$/g, "").split("|").map(c => inl(c.trim()));
         const body = lines.filter(l => !/^\s*\|[\s:|-]+\|\s*$/.test(l));
-        return `<div class="tbl"><table><thead><tr>${cells(body[0]).map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>${body.slice(1).map(r => `<tr>${cells(r).map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+        const head = cells(body[0]), lbl = head.map(h => h.replace(/<[^>]+>/g, "").replace(/"/g, "&quot;"));
+        return `<div class="tbl${head.length >= 3 ? " t3" : ""}"><table><thead><tr>${head.map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>${body.slice(1).map(r => `<tr>${cells(r).map((c, k) => `<td data-l="${lbl[k] || ""}">${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
       }
       const top = /^([-*•]|\d+[.)])\s+/;
       if(top.test(lines[0]) && lines.some(l => /^\s{2,}\S/.test(l)) && lines.every(l => top.test(l) || /^\s{2,}\S/.test(l))){
@@ -588,7 +593,7 @@ class CodeEditor{
     if(window.CodeMirror){
       const run = () => this.h.run(), check = () => this.h.check();
       this.cm = CodeMirror(host, {
-        theme:"lab", lineNumbers:true, tabSize:2, indentUnit:2, autoCloseBrackets:true, matchBrackets:true, autoCloseTags:true,
+        theme:"lab", lineNumbers:true, lineWrapping:window.innerWidth <= 700, tabSize:2, indentUnit:2, autoCloseBrackets:true, matchBrackets:true, autoCloseTags:true,
         extraKeys:{
           Tab: cm => cm.somethingSelected() ? cm.indentSelection("add") : cm.replaceSelection("  "),
           "Shift-Tab": cm => cm.indentSelection("subtract"),
@@ -615,7 +620,32 @@ class CodeEditor{
   get(){ return {...this.vals}; }
   set(files){ this.vals = {...files}; if(this.cm){ this.order.forEach(n => this.docs[n] = CodeMirror.Doc(files[n] || "", CM_MODE[n])); this.cm.swapDoc(this.docs[this.cur]); } else this.ta.value = files[this.cur] || ""; }
   refresh(){ this.cm && this.cm.refresh(); }
+  /* ввод с панели символов на телефоне: пары ставят курсор между скобками */
+  key(k){
+    const pair = /^(\{\}|\(\)|\[\]|<>|""|''|``)$/.test(k), txt = k === "tab" ? "  " : k;
+    if(this.cm){
+      const cm = this.cm;
+      if(k === "undo"){ cm.undo(); cm.focus(); return; }
+      if(pair){ const sel = cm.getSelection(); cm.replaceSelection(k[0] + sel + k[1]); if(!sel){ const c = cm.getCursor(); cm.setCursor({line:c.line, ch:c.ch - 1}); } }
+      else cm.replaceSelection(txt);
+      cm.focus();
+    } else {
+      const ta = this.ta; if(k === "undo"){ document.execCommand && document.execCommand("undo"); return; }
+      const a = ta.selectionStart, b = ta.selectionEnd, sel = ta.value.slice(a, b);
+      ta.setRangeText(pair ? k[0] + sel + k[1] : txt, a, b, "end"); if(pair && !sel) ta.selectionStart = ta.selectionEnd = a + 1;
+      this.vals[this.cur] = ta.value; this.h.change(); ta.focus();
+    }
+  }
 }
+/* клавиатура телефона перекрывает низ экрана: подгоняем лабораторию под видимую область */
+(function(){
+  const vv = window.visualViewport; if(!vv) return;
+  const fit = () => { const lab = document.getElementById("lab"); if(!lab || lab.hidden) return;
+    const kb = window.innerHeight - vv.height > 120;
+    lab.style.height = kb ? vv.height + "px" : ""; lab.style.top = kb ? vv.offsetTop + "px" : ""; lab.style.bottom = kb ? "auto" : "";
+    lab.classList.toggle("kb-open", kb); if(Lab.editor) Lab.editor.refresh(); };
+  vv.addEventListener("resize", fit); vv.addEventListener("scroll", fit);
+})();
 
 /* ================= AI ================= */
 let sampleFn = null, aiChecked = false;
@@ -850,7 +880,7 @@ async function toggleDeep(i, regen){
     const own = lessons[i];
     if(own){
       const extra = store[key] ? `<details class="deep-ai"><summary>Объяснение наставника</summary><div class="ai-text">${md(store[key])}</div></details>` : "";
-      box.innerHTML = `<div class="ai-text deep-lesson">${md(own)}</div>${extra}${tools}`;
+      box.innerHTML = `${deepHtml(own, w.id, i, w.learn[i], w.mod)}${extra}${tools}`;
       return;
     }
     if(store[key]){ box.innerHTML = `<div class="ai-text">${md(store[key])}</div>${tools}`; return; }
@@ -996,7 +1026,7 @@ async function openLab(cfg){
 function closeLab(){
   const lab = $("#lab"); if(lab.hidden) return;
   if(Lab.frame && Lab.frame.__tok) RUNS.delete(Lab.frame.__tok);
-  lab.hidden = true; document.documentElement.classList.remove("lab-open");
+  lab.hidden = true; document.documentElement.classList.remove("lab-open"); lab.style.height = lab.style.top = lab.style.bottom = ""; lab.classList.remove("kb-open");
   Lab.cfg = null; Lab.editor = null;
   rerender();
   if(Lab.retFocus && document.contains(Lab.retFocus)) Lab.retFocus.focus();
@@ -1294,8 +1324,11 @@ function closeMap(){ const m = $("#mapDrawer"); if(!m || m.hidden) return; m.hid
 function go(n){ if(n < 1 || n > trackLen()) return; sel = n; closeMap(); try{ history.replaceState(null, "", "#w" + n); }catch(e){} renderRail(); renderWeek(); }
 
 /* ================= events ================= */
+document.addEventListener("pointerdown", e => { if(e.target.closest("#labKeys button")) e.preventDefault(); });
 document.addEventListener("click", e => {
   const t = e.target;
+  const kb = t.closest("#labKeys button"); if(kb){ if(Lab.editor) Lab.editor.key(kb.dataset.key); return; }
+  const dg = t.closest("[data-dlgo]"); if(dg){ const sec = dg.closest(".dl").querySelector(`[data-dl="${dg.dataset.dlgo}"]`); if(sec) sec.scrollIntoView({behavior:"smooth", block:"start"}); return; }
   const st = t.closest(".st"); if(st){ go(+st.dataset.w); window.scrollTo({top:0}); return; }
   const g = t.closest("[data-go]"); if(g && !g.disabled){ go(+g.dataset.go); window.scrollTo({top:0, behavior:"smooth"}); return; }
   const o = t.closest(".opt"); if(o && !o.disabled){ S.q[o.dataset.q] = +o.dataset.o; const m = /^(.+)_q(\d+)$/.exec(o.dataset.q); if(m && LES[m[1]] && LES[m[1]].quiz[+m[2]].a === +o.dataset.o) award("q:" + o.dataset.q, 10); saveCourse(); renderWeek(); return; }

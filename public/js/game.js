@@ -250,11 +250,12 @@ function renderToday(){
 function drawPath(){
   const box = $("#pathmap"); if(!box) return;
   const ids = trackIds(), N = ids.length, cols = box.clientWidth < 620 ? 5 : 10, rows = Math.ceil(N / cols);
-  const W = 1000, padX = 60, stepX = (W - 2 * padX) / (cols - 1), rowH = 110, H = rows * rowH + 20, now = calWeek();
-  const pt = i => { const r = Math.floor(i / cols), c = i % cols; const x = padX + (r % 2 ? cols - 1 - c : c) * stepX; return [x, 60 + r * rowH]; };
+  /* на телефоне холст уже — кружки недель получаются крупнее и в них легко попасть пальцем */
+  const mob = cols === 5, W = mob ? 440 : 1000, padX = mob ? 40 : 60, stepX = (W - 2 * padX) / (cols - 1), rowH = mob ? 86 : 110, H = rows * rowH + 20, now = calWeek(), bend = mob ? 46 : 70;
+  const pt = i => { const r = Math.floor(i / cols), c = i % cols; const x = padX + (r % 2 ? cols - 1 - c : c) * stepX; return [x, (mob ? 46 : 60) + r * rowH]; };
   let d = "";
   ids.forEach((_, i) => { const [x, y] = pt(i); if(!i){ d += `M${x} ${y}`; return; } const [px, py] = pt(i - 1);
-    d += py === y ? ` L${x} ${y}` : ` C ${px + (px > W / 2 ? 70 : -70)} ${py}, ${x + (x > W / 2 ? 70 : -70)} ${y}, ${x} ${y}`; });
+    d += py === y ? ` L${x} ${y}` : ` C ${px + (px > W / 2 ? bend : -bend)} ${py}, ${x + (x > W / 2 ? bend : -bend)} ${y}, ${x} ${y}`; });
   let done = 0; ids.forEach(id => { const p = wp(id); if(p.d === p.t) done++; });
   const nodes = ids.map((id, i) => { const [x, y] = pt(i), l = LES[id], p = wp(id), full = p.d === p.t, frac = p.d / p.t;
     return `<g class="pm-node ${full ? "full" : frac ? "part" : ""} ${i + 1 === now ? "now" : ""}" data-goweek="${i + 1}" style="--c:var(${MODULES[l.mod].c})" tabindex="0" role="button" aria-label="Неделя ${i + 1}: ${esc(l.t)}">

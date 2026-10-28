@@ -1171,3 +1171,208 @@ body{margin:0}
 .mth-traps span{color:var(--muted)}
 .mth-src{margin:0;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
 @media (max-width:520px){.mth-grid,.mth-traps{grid-template-columns:1fr}}
+
+/* ================= Mobile polish ================= */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,summary,label,select,[role="button"],.pm-node{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+/* iOS приближает страницу, если у поля ввода шрифт меньше 16px — на телефонах держим 16px */
+@media (max-width:900px),(pointer:coarse){
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),textarea,select{font-size:16px!important}
+  .CodeMirror textarea{font-size:16px!important}
+}
+@media (pointer:coarse){
+  .CodeMirror{font-size:14px}
+}
+@media (max-width:900px){
+  /* пальцевые цели не меньше ~40px */
+  .sc{min-height:38px;padding:9px 14px;display:inline-flex;align-items:center}
+  .chip{min-height:38px;padding:8px 14px;display:inline-flex;align-items:center}
+  .btn.sm{min-height:40px}
+  .btn{min-height:44px}
+  .deep-btn{padding:8px 12px;margin-top:0;font-size:12px;min-height:36px}
+  .codeblk .to-sb{padding:8px 11px;font-size:12px}
+  .ck{padding:9px 6px;gap:12px;grid-template-columns:24px minmax(0,1fr)}
+  .ck input{width:22px;height:22px;margin-top:1px}
+  .topic-row{align-items:center;gap:6px}
+  .linkish{min-height:36px}
+
+  /* Сегодня: цель дня компактно в одну строку */
+  .th-pct{flex-wrap:wrap}
+  .th-pct span{white-space:nowrap}
+  .th-goal{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:10px 18px;padding-top:6px;border-top:1px solid var(--line)}
+  .th-ring{width:104px;height:104px;grid-row:span 3}
+  .th-ring svg{width:104px;height:104px}
+  .th-ring b{font-size:30px}
+  .th-week{height:56px;gap:6px;justify-content:space-between}
+  .th-week i{width:12px}
+  .th-streak{justify-self:start;font-size:14px}
+  .th-plan{margin:0;font-size:12px!important;text-align:left}
+  .achs{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .ach{padding:10px 11px}
+  .ach b{font-size:13px;line-height:1.25}
+  .ach small{font-size:11.5px;line-height:1.35}
+  .today-cards{gap:10px}
+
+  /* Практика: компактные карточки задач */
+  .excard{flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:8px;row-gap:5px;padding:12px 14px}
+  .excard > b{flex-basis:100%;font-size:15px}
+  .excard > .row{gap:8px}
+  .excard > .row:last-child{flex-basis:100%}
+  .excard > .hint:first-child{font-size:12px}
+
+  /* Песочница: шаблоны плиткой 2×3 */
+  .tpl{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .tpl button{padding:12px}
+  .tpl button b{font-size:13px}
+  .tpl button span{font-size:12px;line-height:1.35}
+  .snips li{flex-wrap:wrap}
+
+  /* Словарь: категории — одна прокручиваемая строка */
+  #glCats{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding:2px 16px 6px;scroll-padding-inline:16px}
+  #glCats::-webkit-scrollbar{display:none}
+  #glCats .chip{flex:0 0 auto}
+  .gl-int{min-height:40px}
+
+  /* таблицы из 3+ колонок на телефоне — карточками */
+  .tbl.t3{overflow:visible}
+  .tbl.t3 table,.tbl.t3 tbody,.tbl.t3 tr,.tbl.t3 td{display:block;width:100%}
+  .tbl.t3 thead{display:none}
+  .tbl.t3 tr{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 8px;background:var(--surface)}
+  .tbl.t3 td{border:0!important;padding:3px 0!important;display:grid;grid-template-columns:minmax(84px,38%) minmax(0,1fr);gap:10px;text-align:left}
+  .tbl.t3 td::before{content:attr(data-l);font:500 10.5px/1.6 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+  .tbl.t3 td:first-child{display:block;font-weight:600;padding-bottom:6px!important;margin-bottom:4px;border-bottom:1px dashed var(--line)!important}
+  .tbl.t3 td:first-child::before{content:none}
+
+  /* лаборатория */
+  .lab-top{gap:8px}
+  .code-foot{padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:400px){
+  .main{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+  .panel{padding:14px}
+  .sec{padding:16px 12px}
+  .deep{padding:12px 12px}
+  .bottombar button{font-size:10.5px}
+}
+
+/* панель символов над клавиатурой в редакторе (только сенсорные экраны) */
+.keybar{display:none}
+@media (pointer:coarse){
+  .keybar{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:6px 8px;border-top:1px solid var(--line);background:var(--surface);flex:0 0 auto}
+  .keybar::-webkit-scrollbar{display:none}
+  .keybar button{flex:0 0 auto;min-width:40px;height:38px;padding:0 10px;border:1px solid var(--line2,var(--line));border-radius:9px;background:var(--sunk);color:var(--fg);font:500 15px var(--f-mono);cursor:pointer}
+  .keybar button:active{background:var(--accent);color:var(--accent-ink)}
+  .keybar button.wide{font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase}
+}
+/* пока открыта клавиатура — прячем второстепенное, чтобы редактору хватило места */
+.lab.kb-open .lab-switch,.lab.kb-open .code-foot,.lab.kb-open .lab-title,.lab.kb-open .lab-score{display:none}
+.lab.kb-open .lab-top{padding-block:6px}
+@media (max-width:900px){
+  .seg button{min-height:40px}
+  .lab-switch button{min-height:38px}
+  .auth-back{padding:10px 0}
+  .gl-term summary,.term summary{padding:8px 0}
+}
+
+/* ================= Подробный урок: графика ================= */
+.dl{--c:var(--accent);display:flex;flex-direction:column;gap:6px;min-width:0}
+.dl-hero{display:grid;grid-template-columns:200px minmax(0,1fr);gap:18px;align-items:center;padding:14px;border-radius:16px;border:1px solid var(--line);
+  background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--c) 16%,transparent),transparent 60%),var(--sunk)}
+.dl-art{border-radius:12px;background:color-mix(in srgb,var(--c) 6%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 22%,var(--line));padding:8px;line-height:0}
+.dl-art svg{width:100%;height:auto;display:block;overflow:visible}
+.dl-meta{display:flex;flex-direction:column;gap:8px;min-width:0}
+.dl-k{font:500 10.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--c)}
+.dl-title{font:500 18px/1.3 var(--f-display);color:var(--fg)}
+.dl-chips{display:flex;flex-wrap:wrap;gap:6px}
+.dl-chips span{font:500 11px var(--f-mono);padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:var(--surface)}
+.dl-nav{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.dl-dot{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;padding:0}
+.dl-dot:hover,.dl-dot:focus-visible{color:var(--c);border-color:var(--c)}
+.dl-dot .dl-ico{width:18px;height:18px}
+.dl-ico{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+.dl-sec{--sc:var(--accent);position:relative;padding:16px 0 4px;scroll-margin-top:calc(var(--topbar-h,64px) + 70px)}
+.dl-sec + .dl-sec{border-top:1px dashed var(--line);margin-top:6px}
+.deep-lesson .dl-h{display:flex;align-items:center;gap:10px;margin:0 0 10px;color:var(--sc)}
+.dl-h .dl-ico{width:30px;height:30px;padding:6px;border-radius:9px;background:color-mix(in srgb,var(--sc) 14%,transparent);border:1px solid color-mix(in srgb,var(--sc) 35%,transparent)}
+.dl-situ{--sc:var(--c)}.dl-hand{--sc:#F2B35B}.dl-how{--sc:var(--accent)}.dl-ex{--sc:#4DABF7}.dl-err{--sc:var(--bad)}.dl-check{--sc:var(--accent)}.dl-task{--sc:var(--ok)}
+.dl-sec > p,.dl-txt > p{margin:0 0 10px}
+
+/* Ситуация — карточка-история */
+.dl-situ > p{position:relative;padding:14px 38px 14px 18px;border-radius:12px;background:color-mix(in srgb,var(--c) 7%,transparent);border:1px solid color-mix(in srgb,var(--c) 25%,var(--line));font-size:15.5px}
+.dl-situ > p::before{content:"“";position:absolute;right:12px;top:-6px;font:700 64px/1 Georgia,serif;color:color-mix(in srgb,var(--c) 30%,transparent);pointer-events:none}
+/* На пальцах — картинка + текст */
+.dl-hand{display:grid;grid-template-columns:72px minmax(0,1fr);gap:14px;align-items:start}
+.dl-pic{width:72px;height:72px;border-radius:20px;display:grid;place-items:center;font-size:40px;line-height:1;
+  background:radial-gradient(circle at 30% 25%,color-mix(in srgb,#F2B35B 28%,transparent),color-mix(in srgb,#F2B35B 8%,transparent));border:1px solid color-mix(in srgb,#F2B35B 35%,transparent);margin-top:2px}
+/* Как это работает — шаги лесенкой */
+.dl-how ol,.dl-how > ul{list-style:none;padding-left:0;margin:0 0 12px;display:flex;flex-direction:column;gap:0;counter-reset:dls}
+.dl-how ol > li{position:relative;padding:0 0 14px 42px;counter-increment:dls}
+.dl-how ol > li::before{content:counter(dls);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 13px var(--f-mono);
+  background:color-mix(in srgb,var(--c) 18%,var(--surface));border:1.5px solid var(--c);color:var(--fg)}
+.dl-how ol > li::after{content:"";position:absolute;left:13.5px;top:30px;bottom:2px;width:1.5px;background:color-mix(in srgb,var(--c) 40%,transparent)}
+.dl-how ol > li:last-child::after{display:none}
+.dl-how ol > li:last-child{padding-bottom:4px}
+.dl-how > ul > li{position:relative;padding:2px 0 8px 22px}
+.dl-how > ul > li::before{content:"";position:absolute;left:4px;top:11px;width:8px;height:8px;border-radius:2px;background:var(--c);transform:rotate(45deg)}
+/* Частые ошибки — карточки с крестиком */
+.dl-err ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.dl-err li{position:relative;padding:11px 12px 11px 42px;border-radius:12px;background:color-mix(in srgb,var(--bad) 7%,transparent);border:1px solid color-mix(in srgb,var(--bad) 25%,var(--line))}
+.dl-err li::before{content:"✕";position:absolute;left:12px;top:10px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--f-body);color:#fff;background:var(--bad)}
+/* Проверь себя */
+.dl-qhint{font-size:13px!important;color:var(--muted);margin:-4px 0 6px!important}
+/* Мини-задание */
+.dl-task > p,.dl-task > ul,.dl-task > ol{position:relative;padding:14px 16px;border-radius:12px;border:1.5px dashed color-mix(in srgb,var(--ok) 55%,var(--line));background:color-mix(in srgb,var(--ok) 7%,transparent);margin:0 0 8px}
+.dl-task > ul,.dl-task > ol{padding-left:34px}
+
+/* схема-цепочка «>> A → B → C» */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:4px 0 14px;padding:12px;border-radius:14px;background:var(--sunk);border:1px solid var(--line)}
+.flow-s{display:inline-flex;align-items:center;gap:8px;padding:7px 12px 7px 7px;border-radius:99px;background:var(--surface);border:1px solid color-mix(in srgb,var(--c,var(--accent)) 40%,var(--line));font-size:14px;line-height:1.3;max-width:100%}
+.flow-s i{flex:0 0 auto;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--f-mono);font-style:normal;background:var(--c,var(--accent));color:var(--bg)}
+.flow-ar{width:18px;height:12px;flex:0 0 auto;background:linear-gradient(var(--muted),var(--muted)) left 50%/12px 1.5px no-repeat;position:relative}
+.flow-ar::after{content:"";position:absolute;right:2px;top:2px;width:6px;height:6px;border-top:1.5px solid var(--muted);border-right:1.5px solid var(--muted);transform:rotate(45deg)}
+
+/* иллюстрация: классы линий */
+.dl-art .b{fill:var(--sunk);stroke:var(--line2,var(--line));stroke-width:1.5}
+.dl-art .b2{fill:var(--surface);stroke:var(--c);stroke-width:2}
+.dl-art .s{fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dl-art .dash{stroke-dasharray:4 6}
+.dl-art .c{fill:none;stroke:var(--c);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.dl-art .thick{stroke-width:9;opacity:.85}
+.dl-art .cf{fill:color-mix(in srgb,var(--c) 22%,transparent);stroke:var(--c);stroke-width:2;stroke-linejoin:round}
+.dl-art .cfill,.dl-art .dot,.dl-art .ac{fill:var(--c)}
+.dl-art .sfill{fill:color-mix(in srgb,var(--muted) 45%,transparent)}
+.dl-art .a,.dl-art .afill{fill:var(--accent)}
+.dl-art .ok{fill:none;stroke:var(--ok);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.dl-art .bad{fill:none;stroke:var(--bad);stroke-width:3;stroke-linecap:round}
+.dl-art .grid{fill:none;stroke:color-mix(in srgb,var(--c) 14%,transparent);stroke-width:1}
+.dl-art .t{font:500 10px var(--f-mono);fill:var(--muted)}
+.dl-art .tc{font:600 10.5px var(--f-mono);fill:var(--c)}
+.dl-art .big{font:700 26px var(--f-mono);fill:var(--c)}
+.dl-art .brace{font:300 110px var(--f-mono);fill:var(--c);opacity:.9}
+
+@media (max-width:620px){
+  .dl-hero{grid-template-columns:minmax(0,1fr);padding:10px;gap:12px}
+  .dl-art{padding:6px}
+  .dl-art svg{max-height:150px}
+  .dl-title{font-size:16.5px}
+  .dl-nav{justify-content:space-between;gap:4px}
+  .dl-dot{width:auto;flex:1;height:40px}
+  .dl-hand{grid-template-columns:minmax(0,1fr)}
+  .dl-pic{position:absolute;right:0;top:10px;width:50px;height:50px;font-size:28px;border-radius:14px;margin:0}
+  .dl-hand .dl-h{min-height:50px;padding-right:60px}
+  .flow{flex-direction:column;align-items:stretch;gap:2px;padding:10px}
+  .flow-s{border-radius:12px;padding:8px 12px 8px 8px}
+  .flow-ar{align-self:center;width:12px;height:16px;background:linear-gradient(var(--muted),var(--muted)) 50% top/1.5px 10px no-repeat}
+  .flow-ar::after{right:auto;left:3px;top:auto;bottom:2px;transform:rotate(135deg)}
+}
+@media (max-width:620px){
+  .codeblk{display:flex;flex-direction:column}
+  .codeblk .to-sb{position:static;align-self:flex-end;margin:0 8px 8px}
+}
+.notes-art{max-width:420px;margin:0 0 6px}
+.notes ol{list-style:none;padding-left:0;counter-reset:nts}
+.notes ol > li{position:relative;padding:0 0 12px 40px;counter-increment:nts;margin:0}
+.notes ol > li::before{content:counter(nts);position:absolute;left:0;top:0;width:27px;height:27px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--f-mono);background:color-mix(in srgb,var(--accent) 14%,var(--surface));border:1.5px solid var(--accent);color:var(--fg)}
+.notes ol > li::after{content:"";position:absolute;left:13px;top:29px;bottom:2px;width:1.5px;background:color-mix(in srgb,var(--accent) 35%,transparent)}
+.notes ol > li:last-child::after{display:none}

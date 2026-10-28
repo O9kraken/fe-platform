@@ -424,3 +424,13 @@ kbd{font:500 11px var(--f-mono);border:1px solid var(--line2);border-radius:4px;
   .lt-bars i{transform:none;transition:none}
 }
 .goal-plan{margin:0;text-align:center;font-size:13px;color:var(--muted)}
+
+/* телефоны: пальцевые цели и поля без авто-приближения */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+a,button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (max-width:900px){
+  .btn.sm{min-height:40px}
+  .fd-chips button,#progTabs button,#goalChips button{min-height:40px}
+  .foot a,footer a{display:inline-block;padding:8px 0}
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),textarea,select{font-size:16px}
+}

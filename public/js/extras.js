@@ -14,7 +14,9 @@ async function loadNotes(){
 function notesSec(id){
   if(!NOTES[id]) return NOTES_LOADED ? "" : '<div class="sec" id="sec-notes"><p class="hint">Загружаю конспект…</p></div>';
   const read = !!(S.read && S.read[id]);
+  const c = (MODULES[(LES[id] || {}).mod] || {}).c || "--accent";
   return `<div class="sec" id="sec-notes"><h3><span class="n">✎</span>Конспект</h3>
+    ${typeof artFor === "function" ? `<div class="notes-art" style="--c:var(${c})"><div class="dl-art">${artFor(id)}</div></div>` : ""}
     <div class="notes ai-text">${md(NOTES[id])}</div>
     <div class="row notes-foot"><button class="btn sm ${read ? "ghost" : ""}" data-read="${id}">${read ? "✓ Прочитано" : "Прочитал, всё понятно · +5 XP"}</button>
     <span class="hint">Что-то непонятно — нажми «Разобрать» у темы ниже или спроси наставника.</span></div></div>`;
